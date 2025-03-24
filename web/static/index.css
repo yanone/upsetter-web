@@ -1,0 +1,95 @@
+html {
+    font-family: "IBM Plex Mono", monospace;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 30px;
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.ui-tabs {
+    font: inherit;
+    background-color: inherit;
+    border: none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    font: inherit;
+    background-color: inherit;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.ui-widget.ui-widget-content {
+    font: inherit;
+    background-color: inherit;
+    border: none;
+}
+
+.ui-dialog {
+    font: inherit;
+    background-color: white;
+    border: none;
+    box-shadow: 0 11px 30px rgba(0, 0, 0, .3);
+}
+
+#font {
+    display: none;
+}
+
+#dialog {
+    display: none;
+}
+
+#drop-area {
+    display: none;
+    width: 600px;
+    height: 400px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 400px;
+    border: 2px dashed #ccc;
+    color: #888;
+    background-color: rgba(0, 0, 0, .01);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#drop-area.drag {
+    background-color: rgba(0, 0, 0, .05);
+    border-color: #aaa;
+    color: #555;
+}
+
+#welcome {
+    text-align: center;
+    width: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#welcome .logo {
+    font-size: 60pt;
+    font-weight: 500;
+}
+
+#app {
+    display: none;
+    width: 800px;
+    height: 800px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

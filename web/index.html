@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperSetter</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <!-- Pyodide -->
+    <!-- <script src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"></script> -->
+
+    <!-- local -->
+    <link rel="stylesheet" href="static/index.css">
+
+    <!-- actual upsetter -->
+    <script src="static/upsetter/app.js"></script>
+    <!-- interface between local html and upsetter -->
+    <script src="static/app-interface.js"></script>
+
+</head>
+
+<body>
+    <div id="welcome">
+        <div class="logo"><span style="color: #22c1c3;">U</span><span style="color: #63bf96;">p</span><span
+                style="color: #9dbe6f;">s</span><span style="color: #cfbc4d;">e</span><span
+                style="color: #fdbb2d;">t</span><span style="color: #fd896f;">t</span><span
+                style="color: #fd5bad;">e</span><span style="color: #fd2dea;">r</span></div>
+        <p>Loading...</p>
+    </div>
+
+    <div id="dialog"></div>
+    <div id="drop-area">Drag and drop your fonts here</div>
+    <div id="font-sources"></div>
+
+    <div id="result"></div>
+    <div id="font">
+        <div class="tabs">
+            <ul>
+                <li><a href="#languages">Languages</a></li>
+                <li><a href="#features">Features</a></li>
+            </ul>
+            <div id="languages">
+                <p>Note: For every script, languages may appear in more than one region. Therefore, be mindful that
+                    unselecting a
+                    language in one region will unselect all occurences of that language within the script.<br />
+                    Example: Unselecting French in Africa will also unselect French in Europe.</p>
+            </div>
+            <div id="features"></div>
+        </div>
+    </div>
+    <div id="message"></div>
+    <div id="app"></div>
+</body>
+
+</html>
