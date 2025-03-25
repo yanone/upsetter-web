@@ -60,13 +60,15 @@
     <div id="app">
         <div id="left">
             <div id="font-targets" class="font-list">
-                <div><button onclick="upsetter.addTargetFonts()">Add weights</button></div>
+                <div><button id="add-weights-button">Add weights</button></div>
                 <div>Targets:</div>
                 <div class="items"></div>
             </div>
-
+            <div><button id="download-button">Download</button></div>
         </div>
+
         <div id="center"></div>
+
         <div id="right">
             <div id="small-drop-area" class="drop-area">Drag and drop your fonts here</div>
             <div id="font-sources" class="font-list">
@@ -75,6 +77,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize jQuery UI buttons
+            $("#add-weights-button").button().click(function () {
+                upsetter.addTargetFonts().then(() => {
+                    upsetter.saveTargetFonts();
+                }).then(() => {
+                    targetsLoaded(upsetter.fontTargetsInformation());
+                });
+            });
+
+            $("#download-button").button().click(function () {
+                upsetter.download();
+            });
+            // disable download button
+            $("#download-button").button("option", "disabled", true);
+        });
+    </script>
 </body>
 
 </html>

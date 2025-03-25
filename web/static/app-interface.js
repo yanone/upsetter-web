@@ -9,7 +9,9 @@ $(document).ready(function () {
             messageFunction: message,
             okaycancelFunction: okaycancel,
             sourcesLoadedFunction: sourcesLoaded,
-            targetsLoadedFunction: targetsLoaded
+            targetsLoadedFunction: targetsLoaded,
+            targetFontIsCompilingFunction: targetFontIsCompiling,
+            fontsCanBeDownloadedFunction: fontsCanBeDownloaded
         });
     }
     main();
@@ -144,7 +146,8 @@ class FontTarget {
     }
 
     html() {
-        html = `<li>${this.options.data["sourceFont"]}<br />`;
+        html = `<li targetFontID="${this.options.data["ID"]}">${this.options.data["sourceFont"]}<br />`;
+        html += `<span class="visiblewhenidle">(${this.options.data["size"]}kB)</span><span class="visiblewhencompiling">compiling</span>`
         html += ` <a href="javascript:upsetter.deleteTarget('${this.options.data["ID"]}')">delete</a>`;
         html += "</li>";
         return html;
@@ -154,5 +157,22 @@ class FontTarget {
 function addTargetFonts() {
     for (const font of upsetter.fontSourcesInformation()) {
         console.log(font);
+    }
+}
+
+function targetFontIsCompiling(ID, condition) {
+    if (condition) {
+        $(`li[targetFontID=${ID}]`).addClass("compiling");
+    } else {
+        $(`li[targetFontID=${ID}]`).removeClass("compiling");
+    }
+}
+
+function fontsCanBeDownloaded(condition) {
+    if (condition) {
+        $("#download-button").button("option", "disabled", false);
+    }
+    else {
+        $("#download-button").button("option", "disabled", true);
     }
 }

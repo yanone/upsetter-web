@@ -135,3 +135,19 @@ body {
 .font-list ul li {
     margin-bottom: 10px;
 }
+
+.font-list ul li .visiblewhencompiling {
+    display: none;
+}
+
+.font-list ul li.compiling .visiblewhencompiling {
+    display: inline-block;
+}
+
+.font-list ul li .visiblewhenidle {
+    display: inline-block;
+}
+
+.font-list ul li.compiling .visiblewhenidle {
+    display: none;
+}

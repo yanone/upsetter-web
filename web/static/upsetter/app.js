@@ -3,6 +3,7 @@ let pyodide = null;
 
 // constants
 const SOURCESFOLDER = "sources";
+const TARGETSFOLDER = "targets";
 
 class Upsetter {
     constructor(options) {
@@ -36,6 +37,7 @@ await micropip.install("fonttools==4.55.8")
 from fontTools.ttLib import TTFont, TTLibError
 
 os.makedirs("${SOURCESFOLDER}", exist_ok=True)
+os.makedirs("${TARGETSFOLDER}", exist_ok=True)
 
 class UpsetterTTFont(TTFont):
     def familyName(self):
@@ -100,8 +102,14 @@ class FontTarget(object):
         return {
             "sourceFont": self.sourceFont.fileName,
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
-            "ID": self.ID
+            "ID": self.ID,
+            "size": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000)
         }
+    def fileName(self):
+        return f"{self.ID}{os.path.splitext(self.sourceFont.fileName)[1]}"
+    def save(self):
+        self.sourceFont.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
+        print(f"Saved target {self.ID} to ${TARGETSFOLDER}/{self.fileName()}")
 
 def getFontTarget(sourceFont=None, ID=None):
     if not ID:
@@ -257,7 +265,7 @@ def getFontTarget(sourceFont=None, ID=None):
         this.options.targetsLoadedFunction(this.fontTargetsInformation());
     }
 
-    addTargetFonts() {
+    async addTargetFonts() {
         pyodide.runPython(`
 
             for fileName, sourceFont in fontSources.items():
@@ -267,6 +275,49 @@ def getFontTarget(sourceFont=None, ID=None):
 
         // Now call fontSourcesInformation
         this.options.targetsLoadedFunction(this.fontTargetsInformation());
+
+    }
+
+    async saveTargetFonts() {
+
+        this.options.fontsCanBeDownloadedFunction(false);
+
+        const IDs = JSON.parse(pyodide.runPython(`json.dumps([ID for ID, targetFont in fontTargets.items()])`));
+
+        // Create an array of promises for saving fonts
+        const savePromises = IDs.map(async (ID) => {
+            this.options.targetFontIsCompilingFunction(ID, true); // Indicate that the font is being compiled
+            await pyodide.runPythonAsync(`getFontTarget(ID=${ID}).save()`); // Save the font asynchronously
+            this.options.targetFontIsCompilingFunction(ID, false); // Indicate that the font compilation is complete
+        });
+
+        // Wait for all save operations to complete
+        await Promise.all(savePromises);
+
+        this.options.fontsCanBeDownloadedFunction(true);
+    }
+
+    // make zip file with Python of all files in targets folder and download
+    download() {
+        pyodide.runPython(`
+            import zipfile
+            import os
+
+            with zipfile.ZipFile("upsetter.zip", "w") as zipf:
+                for file in os.listdir("${TARGETSFOLDER}"):
+                    zipf.write(os.path.join("${TARGETSFOLDER}", file), file)
+
+            `);
+
+        const zipFile = pyodide.FS.readFile("upsetter.zip");
+        const blob = new Blob([zipFile], { type: "application/zip" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "upsetter.zip";
+        a.click();
+
     }
 }
 
