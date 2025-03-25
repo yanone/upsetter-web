@@ -37,7 +37,7 @@ from fontTools.ttLib import TTFont, TTLibError
 
 os.makedirs("${SOURCESFOLDER}", exist_ok=True)
 
-class UpsetterFont(TTFont):
+class UpsetterTTFont(TTFont):
     def familyName(self):
         name = self["name"]
         familyName = name.getName(16, 3, 1, 1033)
@@ -49,7 +49,71 @@ class UpsetterFont(TTFont):
     def fileName(self):
         return self.reader.file.name
 
-`);
+fontSources = {}
+
+class FontSource(object):
+    def __init__(self, fileName):
+        self.fileName = fileName
+        self.ttFont = UpsetterTTFont(f"${SOURCESFOLDER}/{self.fileName}")
+    def delete(self):
+        os.remove(f"${SOURCESFOLDER}/{self.fileName}")
+        del fontSources[self.fileName]
+    def getTargets(self):
+        list = []
+        for ID, targetFont in fontTargets.items():
+            if targetFont.sourceFont == self:
+                list.append(targetFont)
+        return list
+    def data(self):
+        return {
+            "fileName": self.fileName,
+            "size": round(os.path.getsize(f"${SOURCESFOLDER}/{self.fileName}") / 1000),
+            "type": "variable" if "fvar" in self.ttFont else "static",
+            "familyName": self.ttFont.familyName(),
+            "isItalic": self.ttFont.isItalic(),
+            "weightClass": self.ttFont.get("OS/2").usWeightClass
+        }
+
+def getFontSource(fileName):
+    if os.path.exists(f"${SOURCESFOLDER}/{fileName}"):
+        if fileName not in fontSources:
+            fontSources[fileName] = FontSource(fileName)
+        return fontSources[fileName]
+    return None
+
+fontTargets_index = 0
+fontTargets = {}
+
+def nextFontTargetIndex():
+    global fontTargets_index
+    fontTargets_index += 1
+    return fontTargets_index
+
+class FontTarget(object):
+    def __init__(self, sourceFont):
+        self.sourceFont = sourceFont
+        self.ID = None
+    def delete(self):
+        del fontTargets[self.ID]
+        print(f"Deleted target {self.ID}", fontTargets)
+    def data(self):
+        return {
+            "sourceFont": self.sourceFont.fileName,
+            "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
+            "ID": self.ID
+        }
+
+def getFontTarget(sourceFont=None, ID=None):
+    if not ID:
+        ID = nextFontTargetIndex()
+    if ID not in fontTargets:
+        fontTargets[ID] = FontTarget(sourceFont)
+    fontTargets[ID].ID = ID
+    return fontTargets[ID]
+
+
+
+    `);
     }
 
     async uploadFiles(files) {
@@ -64,7 +128,7 @@ class UpsetterFont(TTFont):
                 reader.onload = async (event) => {
                     try {
                         const data = event.target.result;
-                        await this.processFile(file.name, data); // Ensure processFile is awaited
+                        await this.processFileUpload(file.name, data);
                         resolve();
                     } catch (error) {
                         reject(error);
@@ -85,7 +149,7 @@ class UpsetterFont(TTFont):
         this.options.sourcesLoadedFunction(fontSources);
     }
 
-    async processFile(fileName, data) {
+    async processFileUpload(fileName, data) {
         if (fileName.endsWith('.json')) {
             const json = JSON.parse(new TextDecoder().decode(data));
             if ("upsetter-version" in json) {
@@ -103,7 +167,7 @@ class UpsetterFont(TTFont):
 
             pyodide.runPython(`
                 try:
-                    source_font = UpsetterFont("${SOURCESFOLDER}/${fileName}")
+                    source_font = TTFont("${SOURCESFOLDER}/${fileName}")
                 except TTLibError:
                     source_font = None
             `);
@@ -138,30 +202,71 @@ class UpsetterFont(TTFont):
         const list = JSON.parse(pyodide.runPython(`
             list = []
             for file in os.listdir("${SOURCESFOLDER}"):
-                ttFont = UpsetterFont(f"${SOURCESFOLDER}/{file}")
-                list.append({
-                    "fileName": file,
-                    "size": round(os.path.getsize(f"${SOURCESFOLDER}/{file}") / 1000),
-                    "type": "variable" if "fvar" in ttFont else "static",
-                    "familyName": ttFont.familyName(),
-                    "isItalic": ttFont.isItalic(),
-                    "weightClass": ttFont.get("OS/2").usWeightClass
-                })
+                font = getFontSource(file)
+                list.append(font.data())
 
             # Sort the list by Italic
             list.sort(key=lambda x: (x["isItalic"], x["weightClass"]))
-
             json.dumps(list)  # Serialize the list to JSON
 
             `));
         return list;
     }
 
-    deleteSource(fileName) {
-        pyodide.runPython(`os.remove("${SOURCESFOLDER}/${fileName}")`);
+    fontTargetsInformation() {
+        const list = JSON.parse(pyodide.runPython(`
+            list = []
+            for ID, targetFont in fontTargets.items():
+                list.append(targetFont.data())
+
+            # Sort the list by Italic
+            list.sort(key=lambda x: (x["weightClass"]))
+            json.dumps(list)  # Serialize the list to JSON
+
+            `));
+        return list;
+    }
+
+
+    async deleteSource(fileName) {
+        if (pyodide.runPython(`getFontSource("${fileName}").getTargets() != []`)) {
+            okaycancel("Warning", `The font ${fileName} is being used in a target. Are you sure you want to delete it?`)
+                .then((result) => {
+                    if (result) {
+                        pyodide.runPython(`
+                            for target in getFontSource("${fileName}").getTargets():
+                                target.delete()
+                            getFontSource("${fileName}").delete()`);
+                        this.options.sourcesLoadedFunction(this.fontSourcesInformation());
+                        this.options.targetsLoadedFunction(this.fontTargetsInformation());
+                    }
+                });
+
+        }
+        else {
+            pyodide.runPython(`getFontSource("${fileName}").delete()`);
+            this.options.sourcesLoadedFunction(this.fontSourcesInformation());
+            this.options.targetsLoadedFunction(this.fontTargetsInformation());
+        }
+    }
+
+    deleteTarget(ID) {
+        pyodide.runPython(`getFontTarget(ID=${ID}).delete()`);
 
         // Now call fontSourcesInformation
-        const fontSources = this.fontSourcesInformation();
-        this.options.sourcesLoadedFunction(fontSources);
+        this.options.targetsLoadedFunction(this.fontTargetsInformation());
+    }
+
+    addTargetFonts() {
+        pyodide.runPython(`
+
+            for fileName, sourceFont in fontSources.items():
+                targetFont = getFontTarget(sourceFont=sourceFont)
+
+        `);
+
+        // Now call fontSourcesInformation
+        this.options.targetsLoadedFunction(this.fontTargetsInformation());
     }
 }
+

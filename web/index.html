@@ -58,11 +58,21 @@
     </div> -->
 
     <div id="app">
-        <div id="left"></div>
+        <div id="left">
+            <div id="font-targets" class="font-list">
+                <div><button onclick="upsetter.addTargetFonts()">Add weights</button></div>
+                <div>Targets:</div>
+                <div class="items"></div>
+            </div>
+
+        </div>
         <div id="center"></div>
         <div id="right">
             <div id="small-drop-area" class="drop-area">Drag and drop your fonts here</div>
-            <div id="font-sources"></div>
+            <div id="font-sources" class="font-list">
+                <div>Sources:</div>
+                <div class="items"></div>
+            </div>
         </div>
     </div>
 </body>

@@ -72,6 +72,7 @@ body {
     width: 100%;
     height: 300px;
     line-height: 300px;
+    margin-bottom: 20px;
 }
 
 .drop-area.drag {
@@ -108,6 +109,7 @@ body {
     /* Left section takes 20% of the width */
     background-color: #f0f0f0;
     /* Optional: Add a background color for clarity */
+    padding: 15px;
 }
 
 #app #center {
@@ -122,14 +124,14 @@ body {
     /* Right section takes 20% of the width */
     background-color: #f0f0f0;
     /* Optional: Add a background color for clarity */
-    padding: 10px;
+    padding: 15px;
 }
 
-#font-sources ul {
+.font-list ul {
     list-style-type: none;
     padding: 0;
 }
 
-#font-sources ul li {
+.font-list ul li {
     margin-bottom: 10px;
 }

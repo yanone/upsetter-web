@@ -1,12 +1,15 @@
 // Load App
 let upsetter = null;
+let fontTargets = [];
 
 $(document).ready(function () {
     async function main() {
         upsetter = new Upsetter({
             readyFunction: appIsReady,
             messageFunction: message,
-            sourcesLoadedFunction: sourcesLoaded
+            okaycancelFunction: okaycancel,
+            sourcesLoadedFunction: sourcesLoaded,
+            targetsLoadedFunction: targetsLoaded
         });
     }
     main();
@@ -30,6 +33,33 @@ function message(title, message, okay = "Okay") {
         ]
     });
 }
+
+function okaycancel(title, message, okay = "Okay", cancel = "Cancel") {
+    return new Promise((resolve) => {
+        $("#dialog").html(message);
+        $("#dialog").dialog({
+            dialogClass: "no-close",
+            title: title,
+            buttons: [
+                {
+                    text: okay,
+                    click: function () {
+                        $(this).dialog("close");
+                        resolve(true);
+                    }
+                },
+                {
+                    text: cancel,
+                    click: function () {
+                        $(this).dialog("close");
+                        resolve(false);
+                    }
+                }
+            ]
+        });
+    });
+}
+
 
 function appIsReady() {
     console.log("App is ready");
@@ -69,7 +99,7 @@ function sourcesLoaded(data) {
             html += fontSource.html();
         }
         html += "</ul>";
-        $('#font-sources').html(html);
+        $('#font-sources .items').html(html);
 
     }
 
@@ -77,6 +107,20 @@ function sourcesLoaded(data) {
     $('#app').show();
     $('#app').css('display', 'flex');
 
+}
+
+function targetsLoaded(data) {
+
+    if (data) {
+        html = "<ul>";
+        for (let i = 0; i < data.length; i++) {
+            let fontTarget = new FontTarget({ data: data[i] });
+            html += fontTarget.html();
+        }
+        html += "</ul>";
+        $('#font-targets .items').html(html);
+
+    }
 }
 
 
@@ -91,5 +135,24 @@ class FontSource {
         html += ` <a href="javascript:upsetter.deleteSource('${this.options.data["fileName"]}')">delete</a>`;
         html += "</li>";
         return html;
+    }
+}
+
+class FontTarget {
+    constructor(options) {
+        this.options = options;
+    }
+
+    html() {
+        html = `<li>${this.options.data["sourceFont"]}<br />`;
+        html += ` <a href="javascript:upsetter.deleteTarget('${this.options.data["ID"]}')">delete</a>`;
+        html += "</li>";
+        return html;
+    }
+}
+
+function addTargetFonts() {
+    for (const font of upsetter.fontSourcesInformation()) {
+        console.log(font);
     }
 }
