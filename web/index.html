@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuperSetter</title>
+    <title>Upsetter – Modern Font Subsetting</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,9 +84,10 @@
             $("#add-weights-button").button().click(function () {
                 upsetter.addTargetFonts().then(() => {
                     upsetter.saveTargetFonts();
-                }).then(() => {
-                    targetsLoaded(upsetter.fontTargetsInformation());
                 });
+                // .then(() => {
+                //     targetsLoaded(upsetter.fontTargetsInformation());
+                // })
             });
 
             $("#download-button").button().click(function () {

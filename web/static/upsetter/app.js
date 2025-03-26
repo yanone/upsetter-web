@@ -303,6 +303,7 @@ def getFontTarget(sourceFont=None, ID=None):
             this.options.targetFontIsCompilingFunction(ID, true); // Indicate that the font is being compiled
             await pyodide.runPythonAsync(`getFontTarget(ID=${ID}).save()`); // Save the font asynchronously
             this.options.targetFontIsCompilingFunction(ID, false); // Indicate that the font compilation is complete
+            this.options.updateTargetFunction(JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`))); // Update the target font
         });
 
         // Wait for all save operations to complete

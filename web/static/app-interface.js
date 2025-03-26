@@ -11,7 +11,9 @@ $(document).ready(function () {
             sourcesLoadedFunction: sourcesLoaded,
             targetsLoadedFunction: targetsLoaded,
             targetFontIsCompilingFunction: targetFontIsCompiling,
-            fontsCanBeDownloadedFunction: fontsCanBeDownloaded
+            fontsCanBeDownloadedFunction: fontsCanBeDownloaded,
+            updateTargetFunction: updateTarget
+
         });
     }
     main();
@@ -128,7 +130,14 @@ function targetsLoaded(data) {
     }
     else {
         $('#font-targets .items').html("No targets created.");
+        fontsCanBeDownloaded(false);
     }
+}
+
+function updateTarget(data) {
+    let ID = data["ID"];
+    target = new FontTarget({ data: data });
+    $(`li[targetFontID=${ID}]`).html(target.innerHTML());
 }
 
 
@@ -150,12 +159,16 @@ class FontTarget {
     constructor(options) {
         this.options = options;
     }
-
     html() {
-        html = `<li targetFontID="${this.options.data["ID"]}">${this.options.data["sourceFont"]}<br />`;
+        html = `<li targetFontID="${this.options.data["ID"]}">`
+        html += this.innerHTML();
+        html += "</li>";
+        return html;
+    }
+    innerHTML() {
+        html = `${this.options.data["sourceFont"]}<br />`;
         html += `<span class="visiblewhenidle">(${this.options.data["size"]}kB)</span><span class="visiblewhencompiling">compiling</span>`
         html += ` <a href="javascript:upsetter.deleteTarget('${this.options.data["ID"]}')">delete</a>`;
-        html += "</li>";
         return html;
     }
 }
