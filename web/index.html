@@ -64,7 +64,7 @@
                 <div>Targets:</div>
                 <div class="items"></div>
             </div>
-            <div><button id="download-button">Download</button></div>
+            <div><button id="generate-button">Generate</button><button id="download-button">Download</button></div>
         </div>
 
         <div id="center"></div>
@@ -82,12 +82,11 @@
         $(document).ready(function () {
             // Initialize jQuery UI buttons
             $("#add-weights-button").button().click(function () {
-                upsetter.addTargetFonts().then(() => {
-                    upsetter.saveTargetFonts();
-                });
-                // .then(() => {
-                //     targetsLoaded(upsetter.fontTargetsInformation());
-                // })
+                upsetter.addTargetFonts();
+            });
+
+            $("#generate-button").button().click(function () {
+                upsetter.generate();
             });
 
             $("#download-button").button().click(function () {

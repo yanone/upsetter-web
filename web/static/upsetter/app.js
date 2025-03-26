@@ -1,6 +1,7 @@
 // Placeholder variable for Pyodide
 let pyodide = null;
 
+
 // constants
 const SOURCESFOLDER = "sources";
 const TARGETSFOLDER = "targets";
@@ -132,6 +133,7 @@ def getFontTarget(sourceFont=None, ID=None):
     `);
 
         this.options.fontsCanBeDownloadedFunction(false);
+        this.options.fontsCanBeGeneratedFunction(false);
     }
 
     async uploadFiles(files) {
@@ -298,9 +300,12 @@ def getFontTarget(sourceFont=None, ID=None):
 
     }
 
-    async saveTargetFonts() {
+    async generate() {
+
+        var startTime = Date.now();
 
         this.options.fontsCanBeDownloadedFunction(false);
+        this.options.fontsCanBeGeneratedFunction(false);
 
         const IDs = JSON.parse(pyodide.runPython(`json.dumps([ID for ID, targetFont in fontTargets.items()])`));
 
@@ -316,6 +321,10 @@ def getFontTarget(sourceFont=None, ID=None):
         await Promise.all(savePromises);
 
         this.options.fontsCanBeDownloadedFunction(true);
+        this.options.fontsCanBeGeneratedFunction(true);
+
+        var endTime = Date.now();
+        console.log(`Average font compile time: ${(endTime - startTime) / IDs.length}ms`);
     }
 
     // make zip file with Python of all files in targets folder and download

@@ -12,6 +12,7 @@ $(document).ready(function () {
             targetsLoadedFunction: targetsLoaded,
             targetFontIsCompilingFunction: targetFontIsCompiling,
             fontsCanBeDownloadedFunction: fontsCanBeDownloaded,
+            fontsCanBeGeneratedFunction: fontsCanBeGenerated,
             updateTargetFunction: updateTarget
 
         });
@@ -91,7 +92,7 @@ function appIsReady() {
     setTimeout(function () {
         $('#welcome').hide();
         $('#big-drop-area').show();
-    }, 500);
+    }, 0);
 }
 
 function sourcesLoaded(data) {
@@ -127,10 +128,12 @@ function targetsLoaded(data) {
         }
         html += "</ul>";
         $('#font-targets .items').html(html);
+        fontsCanBeGenerated(true);
     }
     else {
         $('#font-targets .items').html("No targets created.");
         fontsCanBeDownloaded(false);
+        fontsCanBeGenerated(false);
     }
 }
 
@@ -184,6 +187,15 @@ function targetFontIsCompiling(ID, condition) {
         $(`li[targetFontID=${ID}]`).addClass("compiling");
     } else {
         $(`li[targetFontID=${ID}]`).removeClass("compiling");
+    }
+}
+
+function fontsCanBeGenerated(condition) {
+    if (condition) {
+        $("#generate-button").button("option", "disabled", false);
+    }
+    else {
+        $("#generate-button").button("option", "disabled", true);
     }
 }
 
