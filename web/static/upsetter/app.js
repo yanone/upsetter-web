@@ -97,6 +97,8 @@ class FontTarget(object):
         self.ID = None
     def delete(self):
         del fontTargets[self.ID]
+        if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
+            os.remove(f"${TARGETSFOLDER}/{self.fileName()}")
         print(f"Deleted target {self.ID}", fontTargets)
     def data(self):
         return {
