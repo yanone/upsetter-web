@@ -27,6 +27,7 @@ class Upsetter {
     async loadPyodide() {
         pyodide = await loadPyodide();
         await pyodide.loadPackage('micropip');
+        await pyodide.loadPackage('static/upsetter/upsetter-0.1.0a6-py3-none-any.whl');
         await pyodide.runPythonAsync(`
 import micropip
 import os
@@ -35,6 +36,8 @@ from pyodide.code import run_js
 
 await micropip.install("fonttools==4.55.8")
 from fontTools.ttLib import TTFont, TTLibError
+
+import upsetter
 
 os.makedirs("${SOURCESFOLDER}", exist_ok=True)
 os.makedirs("${TARGETSFOLDER}", exist_ok=True)
@@ -95,11 +98,11 @@ class FontTarget(object):
     def __init__(self, sourceFont):
         self.sourceFont = sourceFont
         self.ID = None
+        self.ttFont = None
     def delete(self):
         del fontTargets[self.ID]
         if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
             os.remove(f"${TARGETSFOLDER}/{self.fileName()}")
-        print(f"Deleted target {self.ID}", fontTargets)
     def data(self):
         return {
             "sourceFont": self.sourceFont.fileName,
@@ -110,9 +113,11 @@ class FontTarget(object):
         }
     def fileName(self):
         return f"{self.ID}{os.path.splitext(self.sourceFont.fileName)[1]}"
+    def compile(self):
+        self.ttFont = upsetter.font_subset(self.sourceFont.ttFont)
     def save(self):
-        self.sourceFont.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
-        print(f"Saved target {self.ID} to ${TARGETSFOLDER}/{self.fileName()}")
+        self.compile()
+        self.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
 
 def getFontTarget(sourceFont=None, ID=None):
     if not ID:
