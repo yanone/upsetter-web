@@ -11,7 +11,8 @@ $(document).ready(function () {
             sourcesLoadedFunction: sourcesLoaded,
             targetsLoadedFunction: targetsLoaded,
             targetFontIsCompilingFunction: targetFontIsCompiling,
-            fontsCanBeDownloadedFunction: fontsCanBeDownloaded
+            fontsCanBeDownloadedFunction: fontsCanBeDownloaded,
+            sourcesAreAvailableFunction: sourcesAreAvailable
         });
     }
     main();
@@ -94,7 +95,7 @@ function appIsReady() {
 
 function sourcesLoaded(data) {
 
-    if (data) {
+    if (data.length > 0) {
         html = "<ul>";
         for (let i = 0; i < data.length; i++) {
             let fontSource = new FontSource({ data: data[i] });
@@ -102,7 +103,11 @@ function sourcesLoaded(data) {
         }
         html += "</ul>";
         $('#font-sources .items').html(html);
-
+        sourcesAreAvailable(true);
+    }
+    else {
+        $('#font-sources .items').html("No sources loaded.");
+        sourcesAreAvailable(false);
     }
 
     $('#big-drop-area').hide();
@@ -121,6 +126,9 @@ function targetsLoaded(data) {
         }
         html += "</ul>";
         $('#font-targets .items').html(html);
+    }
+    else {
+        $('#font-targets .items').html("No targets created.");
     }
 }
 
@@ -173,5 +181,14 @@ function fontsCanBeDownloaded(condition) {
     }
     else {
         $("#download-button").button("option", "disabled", true);
+    }
+}
+
+function sourcesAreAvailable(condition) {
+    if (condition) {
+        $("#add-weights-button").button("option", "disabled", false);
+    }
+    else {
+        $("#add-weights-button").button("option", "disabled", true);
     }
 }

@@ -157,8 +157,8 @@ def getFontTarget(sourceFont=None, ID=None):
         await Promise.all(fileProcessingPromises);
 
         // Now call fontSourcesInformation
-        const fontSources = this.fontSourcesInformation();
-        this.options.sourcesLoadedFunction(fontSources);
+        this.reloadSources();
+        this.reloadTargets();
     }
 
     async processFileUpload(fileName, data) {
@@ -278,7 +278,14 @@ def getFontTarget(sourceFont=None, ID=None):
     }
 
     reloadSources() {
-        this.options.sourcesLoadedFunction(this.fontSourcesInformation());
+        const fontSources = this.fontSourcesInformation();
+        this.options.sourcesLoadedFunction(fontSources);
+        // if (fontSources.length > 0) {
+        //     this.options.sourcesAreAvailableFunction(true);
+        // }
+        // else {
+        //     this.options.sourcesAreAvailableFunction(false);
+        // }
     }
 
     async addTargetFonts() {
