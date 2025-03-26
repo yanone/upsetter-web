@@ -124,6 +124,8 @@ def getFontTarget(sourceFont=None, ID=None):
 
 
     `);
+
+        this.options.fontsCanBeDownloadedFunction(false);
     }
 
     async uploadFiles(files) {
@@ -247,16 +249,16 @@ def getFontTarget(sourceFont=None, ID=None):
                             for target in getFontSource("${fileName}").getTargets():
                                 target.delete()
                             getFontSource("${fileName}").delete()`);
-                        this.options.sourcesLoadedFunction(this.fontSourcesInformation());
-                        this.options.targetsLoadedFunction(this.fontTargetsInformation());
+                        this.reloadSources();
+                        this.reloadTargets();
                     }
                 });
 
         }
         else {
             pyodide.runPython(`getFontSource("${fileName}").delete()`);
-            this.options.sourcesLoadedFunction(this.fontSourcesInformation());
-            this.options.targetsLoadedFunction(this.fontTargetsInformation());
+            this.reloadSources();
+            this.reloadTargets();
         }
     }
 
@@ -264,7 +266,19 @@ def getFontTarget(sourceFont=None, ID=None):
         pyodide.runPython(`getFontTarget(ID=${ID}).delete()`);
 
         // Now call fontSourcesInformation
-        this.options.targetsLoadedFunction(this.fontTargetsInformation());
+        this.reloadTargets();
+    }
+
+    reloadTargets() {
+        const fontTargets = this.fontTargetsInformation();
+        this.options.targetsLoadedFunction(fontTargets);
+        if (fontTargets.length == 0) {
+            this.options.fontsCanBeDownloadedFunction(false);
+        }
+    }
+
+    reloadSources() {
+        this.options.sourcesLoadedFunction(this.fontSourcesInformation());
     }
 
     async addTargetFonts() {
@@ -276,7 +290,7 @@ def getFontTarget(sourceFont=None, ID=None):
         `);
 
         // Now call fontSourcesInformation
-        this.options.targetsLoadedFunction(this.fontTargetsInformation());
+        this.reloadTargets();
 
     }
 

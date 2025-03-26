@@ -113,7 +113,7 @@ function sourcesLoaded(data) {
 
 function targetsLoaded(data) {
 
-    if (data) {
+    if (data.length > 0) {
         html = "<ul>";
         for (let i = 0; i < data.length; i++) {
             let fontTarget = new FontTarget({ data: data[i] });
@@ -121,7 +121,6 @@ function targetsLoaded(data) {
         }
         html += "</ul>";
         $('#font-targets .items').html(html);
-
     }
 }
 
