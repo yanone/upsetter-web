@@ -103,6 +103,7 @@ class FontTarget(object):
     def data(self):
         return {
             "sourceFont": self.sourceFont.fileName,
+            "isItalic": self.sourceFont.ttFont.isItalic(),
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
             "ID": self.ID,
             "size": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000)
@@ -232,7 +233,7 @@ def getFontTarget(sourceFont=None, ID=None):
                 list.append(targetFont.data())
 
             # Sort the list by Italic
-            list.sort(key=lambda x: (x["weightClass"]))
+            list.sort(key=lambda x: (x["isItalic"], x["weightClass"]))
             json.dumps(list)  # Serialize the list to JSON
 
             `));
