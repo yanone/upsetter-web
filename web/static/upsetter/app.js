@@ -272,6 +272,12 @@ def getFontTarget(sourceFont=None, ID=None):
 
     deleteTarget(ID) {
         pyodide.runPython(`getFontTarget(ID=${ID}).delete()`);
+    }
+
+    deleteTargets(IDs) {
+        for (const ID of IDs) {
+            pyodide.runPython(`getFontTarget(ID=${ID}).delete()`);
+        }
 
         // Now call fontSourcesInformation
         this.reloadTargets();
@@ -336,7 +342,6 @@ def getFontTarget(sourceFont=None, ID=None):
             with zipfile.ZipFile("upsetter.zip", "w") as zipf:
                 for file in os.listdir("${TARGETSFOLDER}"):
                     zipf.write(os.path.join("${TARGETSFOLDER}", file), file)
-
             `);
 
         const zipFile = pyodide.FS.readFile("upsetter.zip");

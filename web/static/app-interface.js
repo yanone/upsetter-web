@@ -98,12 +98,12 @@ function appIsReady() {
 function sourcesLoaded(data) {
 
     if (data.length > 0) {
-        html = "<ul>";
+        html = "<ol>";
         for (let i = 0; i < data.length; i++) {
             let fontSource = new FontSource({ data: data[i] });
             html += fontSource.html();
         }
-        html += "</ul>";
+        html += "</ol>";
         $('#font-sources .items').html(html);
         sourcesAreAvailable(true);
     }
@@ -121,20 +121,43 @@ function sourcesLoaded(data) {
 function targetsLoaded(data) {
 
     if (data.length > 0) {
-        html = "<ul>";
+        html = "<ol class='selectable'>";
         for (let i = 0; i < data.length; i++) {
             let fontTarget = new FontTarget({ data: data[i] });
             html += fontTarget.html();
         }
-        html += "</ul>";
+        html += "</ol>";
         $('#font-targets .items').html(html);
         fontsCanBeGenerated(true);
+        $('#font-targets .items ol').selectable({
+            selected: function (event, ui) {
+                $("#delete-targets-button").button("option", "disabled", false);
+            },
+            unselected: function (event, ui) {
+                if ($('#font-targets .items ol .ui-selected').length == 0) {
+                    $("#delete-targets-button").button("option", "disabled", true);
+                }
+            }
+        });
     }
     else {
         $('#font-targets .items').html("No targets created.");
+        $("#delete-targets-button").button("option", "disabled", true);
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
     }
+}
+
+function selectedTargets() {
+    let targets = [];
+    $('#font-targets .items ol .ui-selected').each(function () {
+        targets.push($(this).attr("targetFontID"));
+    });
+    return targets;
+}
+
+function deleteSelectedTargets() {
+    upsetter.deleteTargets(selectedTargets());
 }
 
 function updateTarget(data) {
@@ -171,7 +194,6 @@ class FontTarget {
     innerHTML() {
         html = `${this.options.data["sourceFont"]}<br />`;
         html += `<span class="visiblewhenidle">(${this.options.data["size"]}kB)</span><span class="visiblewhencompiling">compiling</span>`
-        html += ` <a href="javascript:upsetter.deleteTarget('${this.options.data["ID"]}')">delete</a>`;
         return html;
     }
 }

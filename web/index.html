@@ -63,6 +63,8 @@
                 <div><button id="add-weights-button">Add weights</button></div>
                 <div>Targets:</div>
                 <div class="items"></div>
+                <div><button id="delete-targets-button">Delete</button></div>
+                <div class="spacer"></div>
             </div>
             <div><button id="generate-button">Generate</button><button id="download-button">Download</button></div>
         </div>
@@ -80,10 +82,14 @@
 
     <script>
         $(document).ready(function () {
-            // Initialize jQuery UI buttons
             $("#add-weights-button").button().click(function () {
                 upsetter.addTargetFonts();
             });
+
+            $("#delete-targets-button").button().click(function () {
+                deleteSelectedTargets();
+            });
+            $("#delete-targets-button").button("option", "disabled", true);
 
             $("#generate-button").button().click(function () {
                 upsetter.generate();
