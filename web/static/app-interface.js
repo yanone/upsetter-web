@@ -11,8 +11,7 @@ $(document).ready(function () {
             sourcesLoadedFunction: sourcesLoaded,
             targetsLoadedFunction: targetsLoaded,
             targetFontIsCompilingFunction: targetFontIsCompiling,
-            fontsCanBeDownloadedFunction: fontsCanBeDownloaded,
-            sourcesAreAvailableFunction: sourcesAreAvailable
+            fontsCanBeDownloadedFunction: fontsCanBeDownloaded
         });
     }
     main();

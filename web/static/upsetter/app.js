@@ -272,20 +272,11 @@ def getFontTarget(sourceFont=None, ID=None):
     reloadTargets() {
         const fontTargets = this.fontTargetsInformation();
         this.options.targetsLoadedFunction(fontTargets);
-        if (fontTargets.length == 0) {
-            this.options.fontsCanBeDownloadedFunction(false);
-        }
     }
 
     reloadSources() {
         const fontSources = this.fontSourcesInformation();
         this.options.sourcesLoadedFunction(fontSources);
-        // if (fontSources.length > 0) {
-        //     this.options.sourcesAreAvailableFunction(true);
-        // }
-        // else {
-        //     this.options.sourcesAreAvailableFunction(false);
-        // }
     }
 
     async addTargetFonts() {
