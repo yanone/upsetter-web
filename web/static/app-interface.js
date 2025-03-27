@@ -155,11 +155,20 @@ function targetsLoaded(data) {
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
     }
+    setGenerateButton();
 }
 
 function selectedTargetIDs() {
     let targets = [];
     $('#font-targets .items ol .ui-selected').each(function () {
+        targets.push($(this).attr("targetfontid"));
+    });
+    return targets;
+}
+
+function targetIDs() {
+    let targets = [];
+    $('#font-targets .items ol li').each(function () {
         targets.push($(this).attr("targetfontid"));
     });
     return targets;
@@ -173,6 +182,19 @@ function updateTarget(data) {
     let ID = data["ID"];
     target = new FontTarget(data);
     $(`li[targetfontid=${ID}]`).html(target.innerHTML());
+    setGenerateButton();
+}
+
+function setGenerateButton() {
+    $("#generate-button").button("option", "disabled", true);
+    for (const i in targetIDs()) {
+        ID = targetIDs()[i];
+        data = upsetter.targetData(ID);
+        console.log(data);
+        if (data.needsCompilation) {
+            $("#generate-button").button("option", "disabled", false);
+        }
+    }
 }
 
 function loadTargetSettingsUI(ID) {

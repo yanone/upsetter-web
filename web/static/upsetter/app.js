@@ -368,7 +368,7 @@ def getFontTarget(sourceFont=None, ID=None):
         await Promise.all(savePromises);
 
         this.options.fontsCanBeDownloadedFunction(true);
-        this.options.fontsCanBeGeneratedFunction(true);
+        // this.options.fontsCanBeGeneratedFunction(true);
 
         var endTime = Date.now();
         console.log(`Average font compile time: ${(endTime - startTime) / IDs.length}ms`);
