@@ -308,33 +308,65 @@ class FontTarget {
     }
 }
 
+function collectSettings(ID, key) {
+    var list_of_settings = new Set();
+    for (const i in selectedTargetIDs()) {
+        ID = selectedTargetIDs()[i];
+        data = upsetter.targetData(ID);
+        list_of_settings.add(data.settings[key]);
+    }
+    return Array.from(list_of_settings);
+}
+
+function collectData(ID, key) {
+    var list_of_settings = new Set();
+    for (const i in selectedTargetIDs()) {
+        ID = selectedTargetIDs()[i];
+        data = upsetter.targetData(ID);
+        list_of_settings.add(data[key]);
+    }
+    return Array.from(list_of_settings);
+}
+
+
 function targetSettingsHTML() {
 
     if (selectedTargetIDs().length == 0) {
         return "Please select one or more targets to edit them.";
     }
 
-    var list_of_settings = new Set();
-    for (const i in selectedTargetIDs()) {
-        ID = selectedTargetIDs()[i];
-        data = upsetter.targetData(ID);
-        list_of_settings.add(data.settings.compression);
-    }
-
-    list_of_settings = Array.from(list_of_settings);
-
     html = ``;
+
+    // Based on which source
+    sourceFont = collectData(ID, "sourceFont");
+    if (sourceFont.length == 1) {
+        sourceFont = sourceFont[0];
+    }
+    else {
+        sourceFont = "Multiple values selected";
+    }
+    html += `
+    <div>
+    Based on source: <b>${sourceFont}</b>
+    </div>
+    `
+
+
+    // Compression
+    compression = collectSettings(ID, "compression");
+
+    html += ``;
     html += `
     <div class="widget">
     <fieldset>
     <legend>Compression: </legend>
     <label for="uncompressed">Uncompressed</label>
-    <input type="radio" name="compression" id="uncompressed" value="uncompressed" ${list_of_settings.length == 1 && list_of_settings[0] == "uncompressed" ? "checked" : ""}>
+    <input type="radio" name="compression" id="uncompressed" value="uncompressed" ${compression.length == 1 && compression[0] == "uncompressed" ? "checked" : ""}>
     <label for="compressed">Compressed</label>
-    <input type="radio" name="compression" id="compressed" value="compressed" ${list_of_settings.length == 1 && list_of_settings[0] == "compressed" ? "checked" : ""}>
+    <input type="radio" name="compression" id="compressed" value="compressed" ${compression.length == 1 && compression[0] == "compressed" ? "checked" : ""}>
     <label for="compressed_both">Both</label>
-    <input type="radio" name="compression" id="compressed_both" value="both" ${list_of_settings.length == 1 && list_of_settings[0] == "both" ? "checked" : ""}>
-    <legend class="hint" style="display: ${list_of_settings.length > 1 ? "block" : "none"};">(Multiple values selected)</legend>
+    <input type="radio" name="compression" id="compressed_both" value="both" ${compression.length == 1 && compression[0] == "both" ? "checked" : ""}>
+    <legend class="hint" style="display: ${compression.length > 1 ? "block" : "none"};">(Multiple values selected)</legend>
     </fieldset>
     </div>
 
