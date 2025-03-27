@@ -39,6 +39,8 @@ from pyodide.code import run_js
 await micropip.install("fonttools==4.55.8")
 from fontTools.ttLib import TTFont, TTLibError
 
+await micropip.install("brotli")
+
 import upsetter
 
 os.makedirs("${SOURCESFOLDER}", exist_ok=True)
@@ -107,14 +109,16 @@ class FontTarget(object):
         del fontTargets[self.ID]
         if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
             os.remove(f"${TARGETSFOLDER}/{self.fileName()}")
+    def updateSetting(self, key, value):
+        self.settings[key] = value
     def data(self):
         return {
             "sourceFont": self.sourceFont.fileName,
             "isItalic": self.sourceFont.ttFont.isItalic(),
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
             "ID": self.ID,
-            "size_uncompressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000),
-            "size_compressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.compressedFileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}") else 0) / 1000),
+            "size_uncompressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") and self.settings["compression"] in ("uncompressed", "both") else 0) / 1000),
+            "size_compressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.compressedFileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}") and self.settings["compression"] in ("compressed", "both") else 0) / 1000),
             "settings": self.settings,
             "needsCompilation": self.needsCompilation()
         }
@@ -126,10 +130,22 @@ class FontTarget(object):
         return self.settings != self.last_compilation_settings
     def compile(self):
         self.ttFont = upsetter.font_subset(self.sourceFont.ttFont)
+
+        if self.settings["compression"] in ("uncompressed", "both"):
+            self.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
+
+        if self.settings["compression"] in ("compressed", "both"):
+            woff2_ttFont = copy.deepcopy(self.ttFont)
+            woff2_ttFont.flavor = "woff2"
+            woff2_ttFont.save(f"${TARGETSFOLDER}/{self.compressedFileName()}")
+
         self.last_compilation_settings = copy.deepcopy(self.settings)
-    def save(self):
-        self.compile()
-        self.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
+
+        if self.settings["compression"] == "uncompressed" and os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}"):
+            os.remove(f"${TARGETSFOLDER}/{self.compressedFileName()}")
+        if self.settings["compression"] == "compressed" and os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
+            os.remove(f"${TARGETSFOLDER}/{self.fileName()}")
+        
 
 def getFontTarget(sourceFont=None, ID=None):
     if not ID:
@@ -267,9 +283,7 @@ def getFontTarget(sourceFont=None, ID=None):
 
     updateTargetSettings(ID, key, value) {
         pyodide.runPython(`
-            target = getFontTarget(ID=${ID})
-            settings = target.settings
-            target.settings["${key}"] = json.loads('${JSON.stringify(value)}')
+            getFontTarget(ID=${ID}).updateSetting("${key}", json.loads('${JSON.stringify(value)}'))
         `);
         this.options.updateTargetFunction(JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`))); // Update the target font
 
@@ -345,7 +359,7 @@ def getFontTarget(sourceFont=None, ID=None):
         // Create an array of promises for saving fonts
         const savePromises = IDs.map(async (ID) => {
             this.options.targetFontIsCompilingFunction(ID, true); // Indicate that the font is being compiled
-            await pyodide.runPythonAsync(`getFontTarget(ID=${ID}).save()`); // Save the font asynchronously
+            await pyodide.runPythonAsync(`getFontTarget(ID=${ID}).compile()`); // Save the font asynchronously
             this.options.targetFontIsCompilingFunction(ID, false); // Indicate that the font compilation is complete
             this.options.updateTargetFunction(JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`))); // Update the target font
         });
