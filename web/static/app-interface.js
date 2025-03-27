@@ -1,6 +1,7 @@
 // Load App
 let upsetter = null;
 let fontTargets = [];
+var stored_selectedTargetIDs = [];
 
 $(document).ready(function () {
     async function main() {
@@ -123,7 +124,7 @@ function targetsLoaded(data) {
     if (data.length > 0) {
         html = "<ol class='selectable'>";
         for (let i = 0; i < data.length; i++) {
-            let fontTarget = new FontTarget({ data: data[i] });
+            let fontTarget = new FontTarget(data[i]);
             html += fontTarget.html();
         }
         html += "</ol>";
@@ -131,11 +132,18 @@ function targetsLoaded(data) {
         fontsCanBeGenerated(true);
         $('#font-targets .items ol').selectable({
             selected: function (event, ui) {
+                stored_selectedTargetIDs = selectedTargetIDs();
                 $("#delete-targets-button").button("option", "disabled", false);
+                loadTargetSettingsUI();
             },
             unselected: function (event, ui) {
+                stored_selectedTargetIDs = selectedTargetIDs();
                 if ($('#font-targets .items ol .ui-selected').length == 0) {
                     $("#delete-targets-button").button("option", "disabled", true);
+                    $("#target-settings-ui").html("Please select one or more targets to edit them.");
+                }
+                else {
+                    loadTargetSettingsUI();
                 }
             }
         });
@@ -143,27 +151,32 @@ function targetsLoaded(data) {
     else {
         $('#font-targets .items').html("No targets created.");
         $("#delete-targets-button").button("option", "disabled", true);
+        $("#target-settings-ui").html("Please select one or more targets to edit them.");
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
     }
 }
 
-function selectedTargets() {
+function selectedTargetIDs() {
     let targets = [];
     $('#font-targets .items ol .ui-selected').each(function () {
-        targets.push($(this).attr("targetFontID"));
+        targets.push($(this).attr("targetfontid"));
     });
     return targets;
 }
 
 function deleteSelectedTargets() {
-    upsetter.deleteTargets(selectedTargets());
+    upsetter.deleteTargets(selectedTargetIDs());
 }
 
 function updateTarget(data) {
     let ID = data["ID"];
-    target = new FontTarget({ data: data });
-    $(`li[targetFontID=${ID}]`).html(target.innerHTML());
+    target = new FontTarget(data);
+    $(`li[targetfontid=${ID}]`).html(target.innerHTML());
+}
+
+function loadTargetSettingsUI(ID) {
+    $("#target-settings-ui").html(targetSettingsHTML());
 }
 
 
@@ -186,17 +199,71 @@ class FontTarget {
         this.options = options;
     }
     html() {
-        html = `<li targetFontID="${this.options.data["ID"]}">`
+        html = `<li targetfontid="${this.options.ID}">`
         html += this.innerHTML();
         html += "</li>";
         return html;
     }
     innerHTML() {
-        html = `${this.options.data["sourceFont"]}<br />`;
-        html += `<span class="visiblewhenidle">(${this.options.data["size"]}kB)</span><span class="visiblewhencompiling">compiling</span>`
+        html = `${this.options.sourceFont}<br />`;
+        html += `<span class="visiblewhenidle">(${this.options.size}kB)</span><span class="visiblewhencompiling">compiling</span>`
         return html;
     }
 }
+
+function targetSettingsHTML() {
+
+    var list_of_settings = new Set();
+    for (const i in selectedTargetIDs()) {
+        ID = selectedTargetIDs()[i];
+        data = upsetter.targetData(ID);
+        list_of_settings.add(data.settings.compression);
+    }
+
+    list_of_settings = Array.from(list_of_settings);
+
+    html = ``;
+    html += `
+    <div class="widget">
+    <fieldset>
+    <legend>Compression: </legend>
+    <label for="uncompressed">Uncompressed</label>
+    <input type="radio" name="compression" id="uncompressed" value="uncompressed" ${list_of_settings.length == 1 && list_of_settings[0] == "uncompressed" ? "checked" : ""}>
+    <label for="compressed">Compressed</label>
+    <input type="radio" name="compression" id="compressed" value="compressed" ${list_of_settings.length == 1 && list_of_settings[0] == "compressed" ? "checked" : ""}>
+    <label for="compressed_both">Both</label>
+    <input type="radio" name="compression" id="compressed_both" value="both" ${list_of_settings.length == 1 && list_of_settings[0] == "both" ? "checked" : ""}>
+    <legend class="hint" style="display: ${list_of_settings.length > 1 ? "block" : "none"};">(Multiple values selected)</legend>
+    </fieldset>
+    </div>
+
+    <script>
+    $( function() {
+
+    $( "input" ).checkboxradio({
+      icon: false
+    });
+
+    // Add event listener for the radio group
+    $("input[name='compression']").on("change", function() {
+
+        // Update targets
+        for (const i in stored_selectedTargetIDs) {
+            ID = stored_selectedTargetIDs[i];
+            upsetter.updateTargetSettings(ID, "compression", $(this).val());
+        }
+
+        // Hide hint
+        $($(this).siblings(".hint")[0]).hide();
+
+      });
+
+    } );
+    </script>
+    `;
+    return html;
+}
+
 
 function addTargetFonts() {
     for (const font of upsetter.fontSourcesInformation()) {
@@ -206,9 +273,9 @@ function addTargetFonts() {
 
 function targetFontIsCompiling(ID, condition) {
     if (condition) {
-        $(`li[targetFontID=${ID}]`).addClass("compiling");
+        $(`li[targetfontid=${ID}]`).addClass("compiling");
     } else {
-        $(`li[targetFontID=${ID}]`).removeClass("compiling");
+        $(`li[targetfontid=${ID}]`).removeClass("compiling");
     }
 }
 

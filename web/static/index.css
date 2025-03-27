@@ -174,3 +174,7 @@ body {
     padding: 5px;
     /* height: 18px; */
 }
+
+#target-settings-ui {
+    padding: 20px;
+}

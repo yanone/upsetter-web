@@ -96,10 +96,12 @@ def nextFontTargetIndex():
     return fontTargets_index
 
 class FontTarget(object):
-    def __init__(self, sourceFont):
+    def __init__(self, sourceFont, settings):
         self.sourceFont = sourceFont
         self.ID = None
         self.ttFont = None
+        self.settings = settings
+        self.last_compilation_settings = None
     def delete(self):
         del fontTargets[self.ID]
         if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
@@ -110,10 +112,13 @@ class FontTarget(object):
             "isItalic": self.sourceFont.ttFont.isItalic(),
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
             "ID": self.ID,
-            "size": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000)
+            "size": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000),
+            "settings": self.settings
         }
     def fileName(self):
         return f"{self.ID}{os.path.splitext(self.sourceFont.fileName)[1]}"
+    def compressedFileName(self):
+        return f"{self.ID}.woff2"
     def compile(self):
         self.ttFont = upsetter.font_subset(self.sourceFont.ttFont)
     def save(self):
@@ -124,7 +129,10 @@ def getFontTarget(sourceFont=None, ID=None):
     if not ID:
         ID = nextFontTargetIndex()
     if ID not in fontTargets:
-        fontTargets[ID] = FontTarget(sourceFont)
+        defaultSettings = {
+            "compression": "uncompressed"
+        }
+        fontTargets[ID] = FontTarget(sourceFont, defaultSettings)
     fontTargets[ID].ID = ID
     return fontTargets[ID]
 
@@ -247,6 +255,18 @@ def getFontTarget(sourceFont=None, ID=None):
         return list;
     }
 
+    targetData(ID) {
+        return JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`));
+    }
+
+    updateTargetSettings(ID, key, value) {
+        pyodide.runPython(`
+            target = getFontTarget(ID=${ID})
+            settings = target.settings
+            target.settings["${key}"] = json.loads('${JSON.stringify(value)}')
+            print(target.settings)
+        `);
+    }
 
     async deleteSource(fileName) {
         if (pyodide.runPython(`getFontSource("${fileName}").getTargets() != []`)) {
