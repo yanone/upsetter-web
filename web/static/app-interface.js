@@ -14,7 +14,8 @@ $(document).ready(function () {
             targetFontIsCompilingFunction: targetFontIsCompiling,
             fontsCanBeDownloadedFunction: fontsCanBeDownloaded,
             fontsCanBeGeneratedFunction: fontsCanBeGenerated,
-            updateTargetFunction: updateTarget
+            updateTargetFunction: updateTarget,
+            setGenerateAndDownloadButtonsFunction: setGenerateAndDownloadButtons
 
         });
     }
@@ -155,7 +156,7 @@ function targetsLoaded(data) {
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
     }
-    setGenerateButton();
+    setGenerateAndDownloadButtons();
 }
 
 function selectedTargetIDs() {
@@ -182,17 +183,29 @@ function updateTarget(data) {
     let ID = data["ID"];
     target = new FontTarget(data);
     $(`li[targetfontid=${ID}]`).html(target.innerHTML());
-    setGenerateButton();
+    setGenerateAndDownloadButtons();
 }
 
-function setGenerateButton() {
+function setGenerateAndDownloadButtons() {
     $("#generate-button").button("option", "disabled", true);
-    for (const i in targetIDs()) {
-        ID = targetIDs()[i];
-        data = upsetter.targetData(ID);
-        console.log(data);
-        if (data.needsCompilation) {
+    $("#download-button").button("option", "disabled", true);
+
+    if (targetIDs().length > 0) {
+        var needsGenerating = false;
+        for (const i in targetIDs()) {
+            ID = targetIDs()[i];
+            data = upsetter.targetData(ID);
+            console.log(data);
+            if (data.needsCompilation) {
+                needsGenerating = true;
+            }
+        }
+
+        if (needsGenerating) {
             $("#generate-button").button("option", "disabled", false);
+        }
+        else {
+            $("#download-button").button("option", "disabled", false);
         }
     }
 }
