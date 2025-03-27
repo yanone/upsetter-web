@@ -356,6 +356,29 @@ def getFontTarget(sourceFont=None, ID=None):
 
     }
 
+    async addSingleWeight(IDs) {
+
+        for (const ID of IDs) {
+            pyodide.runPython(`
+
+                sourceFont = getFontSource("${ID}")
+                targetFont = getFontTarget(sourceFont=sourceFont)
+
+            `);
+        }
+
+        // pyodide.runPython(`
+
+        //     for fileName, sourceFont in fontSources.items():
+        //         targetFont = getFontTarget(sourceFont=sourceFont)
+
+        // `);
+
+        // Now call fontSourcesInformation
+        this.reloadTargets();
+
+    }
+
     async generate() {
 
         var startTime = Date.now();

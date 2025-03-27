@@ -207,7 +207,6 @@ function deleteSelectedTargets() {
 }
 
 function deleteSelectedSources() {
-    console.log(selectedSourceIDs());
     upsetter.deleteSources(selectedSourceIDs());
 }
 
