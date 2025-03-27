@@ -33,6 +33,7 @@ class Upsetter {
 import micropip
 import os
 import json
+import copy
 from pyodide.code import run_js
 
 await micropip.install("fonttools==4.55.8")
@@ -113,14 +114,18 @@ class FontTarget(object):
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
             "ID": self.ID,
             "size": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000),
-            "settings": self.settings
+            "settings": self.settings,
+            "needsCompilation": self.needsCompilation()
         }
     def fileName(self):
         return f"{self.ID}{os.path.splitext(self.sourceFont.fileName)[1]}"
     def compressedFileName(self):
         return f"{self.ID}.woff2"
+    def needsCompilation(self):
+        return self.settings != self.last_compilation_settings
     def compile(self):
         self.ttFont = upsetter.font_subset(self.sourceFont.ttFont)
+        self.last_compilation_settings = copy.deepcopy(self.settings)
     def save(self):
         self.compile()
         self.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
@@ -264,8 +269,9 @@ def getFontTarget(sourceFont=None, ID=None):
             target = getFontTarget(ID=${ID})
             settings = target.settings
             target.settings["${key}"] = json.loads('${JSON.stringify(value)}')
-            print(target.settings)
         `);
+        this.options.updateTargetFunction(JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`))); // Update the target font
+
     }
 
     async deleteSource(fileName) {

@@ -205,7 +205,7 @@ class FontTarget {
         return html;
     }
     innerHTML() {
-        html = `${this.options.sourceFont}<br />`;
+        html = `${this.options.sourceFont}${this.options.needsCompilation ? "<b>***</b>" : ""}<br />`;
         html += `<span class="visiblewhenidle">(${this.options.size}kB)</span><span class="visiblewhencompiling">compiling</span>`
         return html;
     }
@@ -248,8 +248,8 @@ function targetSettingsHTML() {
     $("input[name='compression']").on("change", function() {
 
         // Update targets
-        for (const i in stored_selectedTargetIDs) {
-            ID = stored_selectedTargetIDs[i];
+        for (const i in selectedTargetIDs()) {
+            ID = selectedTargetIDs()[i];
             upsetter.updateTargetSettings(ID, "compression", $(this).val());
         }
 
