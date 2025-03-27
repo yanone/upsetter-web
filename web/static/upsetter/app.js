@@ -324,6 +324,19 @@ def getFontTarget(sourceFont=None, ID=None):
         this.reloadTargets();
     }
 
+    deleteSource(ID) {
+        pyodide.runPython(`getFontSource(ID=${ID}).delete()`);
+    }
+
+    deleteSources(IDs) {
+        for (const ID of IDs) {
+            pyodide.runPython(`getFontSource("${ID}").delete()`);
+        }
+
+        // Now call fontSourcesInformation
+        this.reloadSources();
+    }
+
     reloadTargets() {
         const fontTargets = this.fontTargetsInformation();
         this.options.targetsLoadedFunction(fontTargets);

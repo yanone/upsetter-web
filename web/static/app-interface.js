@@ -1,7 +1,6 @@
 // Load App
 let upsetter = null;
 let fontTargets = [];
-var stored_selectedTargetIDs = [];
 
 $(document).ready(function () {
     async function main() {
@@ -71,6 +70,8 @@ function okaycancel(title, message, okay = "Okay", cancel = "Cancel") {
 function appIsReady() {
     console.log("App is ready");
 
+    $("#add-single-weight-button").button("option", "disabled", true);
+
     // Prepare drop-over area
     $(".drop-area").on("dragover", function (event) {
         event.preventDefault();
@@ -100,7 +101,7 @@ function appIsReady() {
 function sourcesLoaded(data) {
 
     if (data.length > 0) {
-        html = "<ol>";
+        html = "<ol class='selectable'>";
         for (let i = 0; i < data.length; i++) {
             let fontSource = new FontSource({ data: data[i] });
             html += fontSource.html();
@@ -108,6 +109,22 @@ function sourcesLoaded(data) {
         html += "</ol>";
         $('#font-sources .items').html(html);
         sourcesAreAvailable(true);
+        $('#font-sources .items ol').selectable({
+            selected: function (event, ui) {
+                $("#delete-sources-button").button("option", "disabled", false);
+                $("#add-single-weight-button").button("option", "disabled", false);
+                // loadTargetSettingsUI();
+            },
+            unselected: function (event, ui) {
+                if (selectedSourceIDs().length == 0) {
+                    $("#delete-sources-button").button("option", "disabled", true);
+                    $("#add-single-weight-button").button("option", "disabled", true);
+                }
+                else {
+                    $("#add-single-weight-button").button("option", "disabled", false);
+                }
+            }
+        });
     }
     else {
         $('#font-sources .items').html("No sources loaded.");
@@ -133,13 +150,11 @@ function targetsLoaded(data) {
         fontsCanBeGenerated(true);
         $('#font-targets .items ol').selectable({
             selected: function (event, ui) {
-                stored_selectedTargetIDs = selectedTargetIDs();
                 $("#delete-targets-button").button("option", "disabled", false);
                 loadTargetSettingsUI();
             },
             unselected: function (event, ui) {
-                stored_selectedTargetIDs = selectedTargetIDs();
-                if ($('#font-targets .items ol .ui-selected').length == 0) {
+                if (selectedTargetIDs().length == 0) {
                     $("#delete-targets-button").button("option", "disabled", true);
                     $("#target-settings-ui").html("Please select one or more targets to edit them.");
                 }
@@ -167,6 +182,14 @@ function selectedTargetIDs() {
     return targets;
 }
 
+function selectedSourceIDs() {
+    let sources = [];
+    $('#font-sources .items ol .ui-selected').each(function () {
+        sources.push($(this).attr("sourcefontid"));
+    });
+    return sources;
+}
+
 function targetIDs() {
     let targets = [];
     $('#font-targets .items ol li').each(function () {
@@ -177,6 +200,11 @@ function targetIDs() {
 
 function deleteSelectedTargets() {
     upsetter.deleteTargets(selectedTargetIDs());
+}
+
+function deleteSelectedSources() {
+    console.log(selectedSourceIDs());
+    upsetter.deleteSources(selectedSourceIDs());
 }
 
 function updateTarget(data) {
@@ -209,7 +237,7 @@ function setGenerateAndDownloadButtons() {
     }
 }
 
-function loadTargetSettingsUI(ID) {
+function loadTargetSettingsUI() {
     $("#target-settings-ui").html(targetSettingsHTML());
 }
 
@@ -220,9 +248,8 @@ class FontSource {
     }
 
     html() {
-        html = `<li>${this.options.data["fileName"]}<br />`;
+        html = `<li sourcefontid="${this.options.data["fileName"]}">${this.options.data["fileName"]}<br />`;
         html += `<b>${this.options.data["type"]} ${this.options.data["weightClass"]}</b> (${this.options.data["size"]}kB)`;
-        html += ` <a href="javascript:upsetter.deleteSource('${this.options.data["fileName"]}')">delete</a>`;
         html += "</li>";
         return html;
     }

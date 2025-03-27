@@ -63,12 +63,16 @@
             <div id="font-sources" class="font-list">
                 <div>Sources:</div>
                 <div class="items"></div>
+                <div><button id="delete-sources-button">Delete</button></div>
             </div>
         </div>
 
         <div id="left">
             <div id="font-targets" class="font-list">
-                <div><button id="add-weights-button">Add weights</button></div>
+                <div>
+                    <button id="add-weights-button">Auto-add weights</button>
+                    <button id="add-single-weight-button">Add single weight</button>
+                </div>
                 <div>Targets:</div>
                 <div class="items"></div>
                 <div><button id="delete-targets-button">Delete</button></div>
@@ -88,6 +92,15 @@
             $("#add-weights-button").button().click(function () {
                 upsetter.addTargetFonts();
             });
+
+            $("#add-single-weight-button").button().click(function () {
+                upsetter.addSingleWeight();
+            });
+
+            $("#delete-sources-button").button().click(function () {
+                deleteSelectedSources();
+            });
+            $("#delete-sources-button").button("option", "disabled", true);
 
             $("#delete-targets-button").button().click(function () {
                 deleteSelectedTargets();
