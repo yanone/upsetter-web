@@ -289,7 +289,7 @@ def getFontTarget(sourceFont=None, ID=None):
 
     }
 
-    async deleteSource(fileName) {
+    deleteSource(fileName) {
         if (pyodide.runPython(`getFontSource("${fileName}").getTargets() != []`)) {
             okaycancel("Warning", `The font ${fileName} is being used in a target. Are you sure you want to delete it?`)
                 .then((result) => {
@@ -324,17 +324,13 @@ def getFontTarget(sourceFont=None, ID=None):
         this.reloadTargets();
     }
 
-    deleteSource(ID) {
-        pyodide.runPython(`getFontSource(ID=${ID}).delete()`);
-    }
-
     deleteSources(IDs) {
         for (const ID of IDs) {
-            pyodide.runPython(`getFontSource("${ID}").delete()`);
+            this.deleteSource(ID);
         }
 
-        // Now call fontSourcesInformation
-        this.reloadSources();
+        // // Now call fontSourcesInformation
+        // this.reloadSources();
     }
 
     reloadTargets() {

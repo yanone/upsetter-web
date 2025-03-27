@@ -177,7 +177,9 @@ function targetsLoaded(data) {
 function selectedTargetIDs() {
     let targets = [];
     $('#font-targets .items ol .ui-selected').each(function () {
-        targets.push($(this).attr("targetfontid"));
+        if ($(this).attr("targetfontid") != undefined) {
+            targets.push($(this).attr("targetfontid"));
+        }
     });
     return targets;
 }
@@ -185,7 +187,9 @@ function selectedTargetIDs() {
 function selectedSourceIDs() {
     let sources = [];
     $('#font-sources .items ol .ui-selected').each(function () {
-        sources.push($(this).attr("sourcefontid"));
+        if ($(this).attr("sourcefontid") != undefined) {
+            sources.push($(this).attr("sourcefontid"));
+        }
     });
     return sources;
 }
