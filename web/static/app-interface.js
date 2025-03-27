@@ -206,7 +206,18 @@ class FontTarget {
     }
     innerHTML() {
         html = `${this.options.sourceFont}${this.options.needsCompilation ? "<b>***</b>" : ""}<br />`;
-        html += `<span class="visiblewhenidle">(${this.options.size}kB)</span><span class="visiblewhencompiling">compiling</span>`
+        html += `<span class="visiblewhenidle">(`
+        if (this.options.size_uncompressed) {
+            html += `u:${this.options.size_uncompressed}kB`
+        }
+        if (this.options.size_uncompressed && this.options.size_compressed) {
+            html += `+`
+        }
+        if (this.options.size_compressed) {
+            html += `c:${this.options.size_compressed}kB`
+        }
+        html += `)</span > <span class="visiblewhencompiling">compiling</span>`
+
         return html;
     }
 }

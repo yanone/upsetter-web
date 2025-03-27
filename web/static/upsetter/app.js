@@ -113,7 +113,8 @@ class FontTarget(object):
             "isItalic": self.sourceFont.ttFont.isItalic(),
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
             "ID": self.ID,
-            "size": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000),
+            "size_uncompressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") else 0) / 1000),
+            "size_compressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.compressedFileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}") else 0) / 1000),
             "settings": self.settings,
             "needsCompilation": self.needsCompilation()
         }
@@ -339,7 +340,7 @@ def getFontTarget(sourceFont=None, ID=None):
         this.options.fontsCanBeDownloadedFunction(false);
         this.options.fontsCanBeGeneratedFunction(false);
 
-        const IDs = JSON.parse(pyodide.runPython(`json.dumps([ID for ID, targetFont in fontTargets.items()])`));
+        const IDs = JSON.parse(pyodide.runPython(`json.dumps([ID for ID, targetFont in fontTargets.items() if getFontTarget(ID=ID).needsCompilation()])`));
 
         // Create an array of promises for saving fonts
         const savePromises = IDs.map(async (ID) => {
