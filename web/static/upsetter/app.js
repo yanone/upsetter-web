@@ -289,22 +289,23 @@ def getFontTarget(sourceFont=None, ID=None):
 
     }
 
-    deleteSource(fileName) {
+    async deleteSource(fileName) {
         if (pyodide.runPython(`getFontSource("${fileName}").getTargets() != []`)) {
-            okaycancel("Warning", `The font ${fileName} is being used in a target. Are you sure you want to delete it?`)
-                .then((result) => {
-                    if (result) {
-                        pyodide.runPython(`
-                            for target in getFontSource("${fileName}").getTargets():
-                                target.delete()
-                            getFontSource("${fileName}").delete()`);
-                        this.reloadSources();
-                        this.reloadTargets();
-                    }
-                });
+            const result = await okaycancel(
+                "Warning",
+                `The font ${fileName} is being used in a target. Are you sure you want to delete it?`
+            );
 
-        }
-        else {
+            if (result) {
+                pyodide.runPython(`
+                    for target in getFontSource("${fileName}").getTargets():
+                        target.delete()
+                    getFontSource("${fileName}").delete()
+                `);
+                this.reloadSources();
+                this.reloadTargets();
+            }
+        } else {
             pyodide.runPython(`getFontSource("${fileName}").delete()`);
             this.reloadSources();
             this.reloadTargets();
@@ -322,15 +323,18 @@ def getFontTarget(sourceFont=None, ID=None):
 
         // Now call fontSourcesInformation
         this.reloadTargets();
+        this.options.updateUIFunction();
     }
 
-    deleteSources(IDs) {
+    async deleteSources(IDs) {
         for (const ID of IDs) {
-            this.deleteSource(ID);
+            await this.deleteSource(ID);
         }
 
         // // Now call fontSourcesInformation
-        // this.reloadSources();
+        this.reloadSources();
+        this.reloadTargets();
+        this.options.updateUIFunction();
     }
 
     reloadTargets() {
@@ -339,6 +343,7 @@ def getFontTarget(sourceFont=None, ID=None):
     }
 
     reloadSources() {
+        console.log("reloadSources()");
         const fontSources = this.fontSourcesInformation();
         this.options.sourcesLoadedFunction(fontSources);
     }

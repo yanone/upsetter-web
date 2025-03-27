@@ -156,8 +156,12 @@ body {
     background: #e6e7e8;
 }
 
-.selectable .ui-selected {
-    background: #ffc3ff;
+#font-sources .selectable .ui-selected {
+    background: #fd5bad;
+}
+
+#font-targets .selectable .ui-selected {
+    background: #fd896f;
 }
 
 .selectable {

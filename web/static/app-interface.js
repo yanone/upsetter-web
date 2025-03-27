@@ -14,7 +14,7 @@ $(document).ready(function () {
             fontsCanBeDownloadedFunction: fontsCanBeDownloaded,
             fontsCanBeGeneratedFunction: fontsCanBeGenerated,
             updateTargetFunction: updateTarget,
-            setGenerateAndDownloadButtonsFunction: setGenerateAndDownloadButtons
+            updateUIFunction: updateUI
 
         });
     }
@@ -156,22 +156,18 @@ function targetsLoaded(data) {
             unselected: function (event, ui) {
                 if (selectedTargetIDs().length == 0) {
                     $("#delete-targets-button").button("option", "disabled", true);
-                    $("#target-settings-ui").html("Please select one or more targets to edit them.");
                 }
-                else {
-                    loadTargetSettingsUI();
-                }
+                loadTargetSettingsUI();
             }
         });
     }
     else {
         $('#font-targets .items').html("No targets created.");
         $("#delete-targets-button").button("option", "disabled", true);
-        $("#target-settings-ui").html("Please select one or more targets to edit them.");
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
     }
-    setGenerateAndDownloadButtons();
+    updateUI();
 }
 
 function selectedTargetIDs() {
@@ -202,6 +198,14 @@ function targetIDs() {
     return targets;
 }
 
+function sourceIDs() {
+    let targets = [];
+    $('#font-sources .items ol li').each(function () {
+        targets.push($(this).attr("sourcefontid"));
+    });
+    return targets;
+}
+
 function deleteSelectedTargets() {
     upsetter.deleteTargets(selectedTargetIDs());
 }
@@ -214,13 +218,14 @@ function updateTarget(data) {
     let ID = data["ID"];
     target = new FontTarget(data);
     $(`li[targetfontid=${ID}]`).html(target.innerHTML());
-    setGenerateAndDownloadButtons();
+    updateUI();
 }
 
-function setGenerateAndDownloadButtons() {
+function updateUI() {
     $("#generate-button").button("option", "disabled", true);
     $("#download-button").button("option", "disabled", true);
 
+    // Generate and Download Buttons
     if (targetIDs().length > 0) {
         var needsGenerating = false;
         for (const i in targetIDs()) {
@@ -238,6 +243,23 @@ function setGenerateAndDownloadButtons() {
             $("#download-button").button("option", "disabled", false);
         }
     }
+
+    if (selectedSourceIDs().length > 0) {
+        $("#add-single-weight-button").button("option", "disabled", false);
+        $("#delete-sources-button").button("option", "disabled", false);
+    }
+    else {
+        $("#add-single-weight-button").button("option", "disabled", true);
+        $("#delete-sources-button").button("option", "disabled", true);
+    }
+
+    if (sourceIDs().length == 0) {
+        $("#add-single-weight-button").button("option", "disabled", true);
+        $("#delete-sources-button").button("option", "disabled", true);
+    }
+
+    loadTargetSettingsUI();
+
 }
 
 function loadTargetSettingsUI() {
@@ -287,6 +309,10 @@ class FontTarget {
 }
 
 function targetSettingsHTML() {
+
+    if (selectedTargetIDs().length == 0) {
+        return "Please select one or more targets to edit them.";
+    }
 
     var list_of_settings = new Set();
     for (const i in selectedTargetIDs()) {
