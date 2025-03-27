@@ -195,7 +195,6 @@ function setGenerateAndDownloadButtons() {
         for (const i in targetIDs()) {
             ID = targetIDs()[i];
             data = upsetter.targetData(ID);
-            console.log(data);
             if (data.needsCompilation) {
                 needsGenerating = true;
             }
@@ -310,12 +309,6 @@ function targetSettingsHTML() {
     return html;
 }
 
-
-function addTargetFonts() {
-    for (const font of upsetter.fontSourcesInformation()) {
-        console.log(font);
-    }
-}
 
 function targetFontIsCompiling(ID, condition) {
     if (condition) {
