@@ -1,16 +1,28 @@
 html {
-    font-family: "IBM Plex Mono", monospace;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
 }
 
 body {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10pt;
+
     margin: 0;
     padding: 0;
-    font-size: 12pt;
     line-height: 1.5;
     color: #333;
     background-color: #f8f9fa;
+}
+
+/* UI */
+
+fieldset {
+    border-style: none;
+}
+
+.ui-widget {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10pt;
 }
 
 .ui-tabs {
@@ -39,6 +51,9 @@ body {
     border: none;
     box-shadow: 0 11px 30px rgba(0, 0, 0, .3);
 }
+
+/* CUSTOM */
+
 
 #font {
     display: none;

@@ -349,6 +349,7 @@ function targetSettingsHTML() {
     <div>
     Based on source: <b>${sourceFont}</b>
     </div>
+    <p></p>
     `
 
 
