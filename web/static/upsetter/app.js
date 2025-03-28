@@ -53,6 +53,49 @@ import json
 import copy
 from pyodide.code import run_js
 
+optional_opentype_features = [
+    "afrc",
+    "calt",
+    "case",
+    "clig",
+    "dlig",
+    "frac",
+    "hist",
+    "hlig",
+    "liga",
+    "lnum",
+    "onum",
+    "pnum",
+    "salt",
+    "smcp",
+    "ss01",
+    "ss02",
+    "ss03",
+    "ss04",
+    "ss05",
+    "ss06",
+    "ss07",
+    "ss08",
+    "ss09",
+    "ss10",
+    "ss11",
+    "ss12",
+    "ss13",
+    "ss14",
+    "ss15",
+    "ss16",
+    "ss17",
+    "ss18",
+    "ss19",
+    "ss20",
+    "subs",
+    "sups",
+    "swsh",
+    "titl",
+    "tnum",
+    "zero",
+]
+
 await micropip.install("fonttools==4.55.8")
 from fontTools.ttLib import TTFont, TTLibError
 
@@ -76,6 +119,17 @@ class UpsetterFont(TTFont):
         return "Italic" in self.fileName()
     def fileName(self):
         return self.reader.file.name
+    def optionalOTfeatures(self):
+        ot_features = set()
+        for FeatureRecord in self.get("GSUB").table.FeatureList.FeatureRecord:
+            ot_features.add(FeatureRecord.FeatureTag)
+        for FeatureRecord in self.get("GPOS").table.FeatureList.FeatureRecord:
+            ot_features.add(FeatureRecord.FeatureTag)
+        # prune against optional_opentype_features
+        ot_features = ot_features.intersection(set(optional_opentype_features))
+
+        return sorted(list(ot_features))
+
 
 fontSources = {}
 
@@ -87,11 +141,11 @@ class FontSource(object):
         os.remove(f"${SOURCESFOLDER}/{self.fileName}")
         del fontSources[self.fileName]
     def getTargets(self):
-        list = []
+        targets_list = []
         for ID, targetFont in fontTargets.items():
             if targetFont.sourceFont == self:
-                list.append(targetFont)
-        return list
+                targets_list.append(targetFont)
+        return targets_list
     def data(self):
         return {
             "fileName": self.fileName,
@@ -131,7 +185,7 @@ class FontTarget(object):
     def updateSetting(self, key, value):
         self.settings[key] = value
     def data(self):
-        return {
+        _data = {
             "sourceFont": self.sourceFont.fileName,
             "isItalic": self.sourceFont.ttFont.isItalic(),
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
@@ -140,8 +194,11 @@ class FontTarget(object):
             "size_uncompressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") and self.settings["compression"] in ("uncompressed", "both") else 0) / 1000),
             "size_compressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.compressedFileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}") and self.settings["compression"] in ("compressed", "both") else 0) / 1000),
             "settings": self.settings,
-            "needsCompilation": self.needsCompilation()
+            "needsCompilation": self.needsCompilation(),
+            "optionalOTfeatures": self.sourceFont.ttFont.optionalOTfeatures()
+
         }
+        return _data
     def fileName(self):
         return f"{self.ID}{os.path.splitext(self.sourceFont.fileName)[1]}"
     def compressedFileName(self):
@@ -172,7 +229,9 @@ def getFontTarget(sourceFont=None, ID=None):
         ID = nextFontTargetIndex()
     if ID not in fontTargets:
         defaultSettings = {
-            "compression": "uncompressed"
+            "compression": "uncompressed",
+            "freeze_features": [],
+            "drop_features": [],
         }
         fontTargets[ID] = FontTarget(sourceFont, defaultSettings)
     fontTargets[ID].ID = ID
@@ -270,14 +329,14 @@ def getFontTarget(sourceFont=None, ID=None):
 
     fontSourcesInformation() {
         const list = JSON.parse(pyodide.runPython(`
-            list = []
+            _list = []
             for file in os.listdir("${SOURCESFOLDER}"):
                 font = getFontSource(file)
-                list.append(font.data())
+                _list.append(font.data())
 
             # Sort the list by Italic
-            list.sort(key=lambda x: (x["isItalic"], x["weightClass"]))
-            json.dumps(list)  # Serialize the list to JSON
+            _list.sort(key=lambda x: (x["isItalic"], x["weightClass"]))
+            json.dumps(_list)  # Serialize the list to JSON
 
             `));
         return list;
@@ -285,13 +344,13 @@ def getFontTarget(sourceFont=None, ID=None):
 
     fontTargetsInformation() {
         const list = JSON.parse(pyodide.runPython(`
-            list = []
+            _list = []
             for ID, targetFont in fontTargets.items():
-                list.append(targetFont.data())
+                _list.append(targetFont.data())
 
             # Sort the list by Italic
-            list.sort(key=lambda x: (x["isItalic"], x["weightClass"]))
-            json.dumps(list)  # Serialize the list to JSON
+            _list.sort(key=lambda x: (x["isItalic"], x["weightClass"]))
+            json.dumps(_list)  # Serialize the list to JSON
 
             `));
         return list;
@@ -369,11 +428,11 @@ def getFontTarget(sourceFont=None, ID=None):
 
     addTargetFonts() {
         var IDs = JSON.parse(pyodide.runPython(`
-            list = []
+            _list = []
             for fileName, sourceFont in fontSources.items():
                 targetFont = getFontTarget(sourceFont=sourceFont)
-                list.append(targetFont.ID)
-            json.dumps(list)
+                _list.append(targetFont.ID)
+            json.dumps(_list)
         `));
 
         // Now call fontSourcesInformation

@@ -239,11 +239,13 @@ function sourceIDs() {
 function deleteSelectedTargets() {
     upsetter.deleteTargets(selectedTargetIDs());
     updateUI();
+    loadTargetSettingsUI();
 }
 
 function deleteSelectedSources() {
     upsetter.deleteSources(selectedSourceIDs());
     updateUI();
+    loadTargetSettingsUI();
 }
 
 function updateTarget(data) {
@@ -297,7 +299,7 @@ function updateUI() {
         $("#delete-targets-button").button("option", "disabled", true);
     }
 
-    loadTargetSettingsUI();
+    // loadTargetSettingsUI();
 
 }
 
@@ -382,7 +384,7 @@ function targetSettingsHTML() {
         sourceFont = sourceFont[0];
     }
     else {
-        sourceFont = "Multiple values selected";
+        sourceFont = "Multiple fonts selected";
     }
     html += `
     <div>
@@ -390,7 +392,6 @@ function targetSettingsHTML() {
     </div>
     <p></p>
     `
-
 
     // Compression
     compression = collectSettings(ID, "compression");
@@ -409,18 +410,56 @@ function targetSettingsHTML() {
     <legend class="hint" style="display: ${compression.length > 1 ? "block" : "none"};">(Multiple values selected)</legend>
     </fieldset>
     </div>
-
     <script>
     $( function() {
-
-    $( "input" ).checkboxradio({
-      icon: false
-    });
-
-
+        $( "input" ).checkboxradio({
+        icon: false
+        });
     } );
     </script>
     `;
+
+    html += `<p></p>`;
+    html += `<p>Not yet functional:</p>`;
+    html += `<p></p>`;
+
+    // Optional OT features
+    otFeatures = collectData(ID, "optionalOTfeatures");
+
+    // Combine OT features into a single array
+    let otFeaturesArray = new Set();
+    for (const i in otFeatures) {
+        for (const j in otFeatures[i]) {
+            otFeaturesArray = otFeaturesArray.add(otFeatures[i][j]);
+        }
+    }
+    otFeaturesArray = Array.from(otFeaturesArray).sort();
+
+    for (const i in otFeaturesArray) {
+        feature = otFeaturesArray[i];
+        html += `
+        <div class="widget">
+        <fieldset>
+        <legend>${feature}</legend>
+        <label for="feature_${feature}_keep">Keep</label>
+        <input type="radio" name="feature_${feature}" id="feature_${feature}_keep" value="keep" checked>
+        <label for="feature_${feature}_freeze">Freeze</label>
+        <input type="radio" name="feature_${feature}" id="feature_${feature}_freeze" value="freeze">
+        <label for="feature_${feature}_drop">Drop</label>
+        <input type="radio" name="feature_${feature}" id="feature_${feature}_drop" value="drop">
+        </fieldset>
+        </div>
+        <script>
+        $( function() {
+            $( "input" ).checkboxradio({
+            icon: false
+            });
+        } );
+        </script>
+        `;
+    }
+
+
     return html;
 }
 
