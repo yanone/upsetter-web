@@ -1,0 +1,221 @@
+html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* UI */
+
+fieldset {
+    border-style: none;
+}
+
+body {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11pt;
+}
+
+.ui-widget {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11pt;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+a.ui-button:active,
+.ui-button:active,
+.ui-button.ui-state-active:hover {
+    border: 1px solid #003eff;
+    background: #22c1c3;
+    font-weight: normal;
+    color: #ffffff;
+}
+
+.ui-tabs {
+    font: inherit;
+    background-color: inherit;
+    border: none;
+}
+
+.ui-tabs .ui-tabs-nav {
+    font: inherit;
+    background-color: inherit;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.ui-widget.ui-widget-content {
+    font: inherit;
+    background-color: inherit;
+    border: none;
+}
+
+.ui-dialog {
+    font: inherit;
+    background-color: white;
+    border: none;
+    box-shadow: 0 11px 30px rgba(0, 0, 0, .3);
+}
+
+/* CUSTOM */
+
+
+#font {
+    display: none;
+}
+
+#dialog {
+    display: none;
+}
+
+.drop-area {
+    display: none;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px dashed #ccc;
+    color: #888;
+    background-color: rgba(0, 0, 0, .01);
+}
+
+#small-drop-area {
+    display: block;
+    width: 100%;
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+.drop-area.drag {
+    background-color: rgba(0, 0, 0, .05);
+    border-color: #aaa;
+    color: #555;
+}
+
+#welcome {
+    text-align: center;
+    width: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#welcome .logo {
+    font-size: 60pt;
+    font-weight: 500;
+}
+
+#app {
+    display: none;
+    /* Use flexbox for layout */
+    width: 100vw;
+    /* Stretch to the full width of the viewport */
+    height: 100vh;
+    /* Stretch to the full height of the viewport */
+}
+
+#app #left {
+    width: 20%;
+    /* Left section takes 20% of the width */
+    background-color: #f7f7f7;
+    /* Optional: Add a background color for clarity */
+    padding: 15px;
+}
+
+#app #center {
+    width: 60%;
+    /* Center section takes 60% of the width */
+    background-color: #ffffff;
+    /* Optional: Add a background color for clarity */
+}
+
+#app #right {
+    width: 20%;
+    /* Right section takes 20% of the width */
+    background-color: #f0f0f0;
+    /* Optional: Add a background color for clarity */
+    padding: 15px;
+}
+
+.font-list ol {
+    list-style-type: none;
+    padding: 0;
+}
+
+.font-list ol li .visiblewhencompiling {
+    display: none;
+}
+
+.font-list ol li.compiling .visiblewhencompiling {
+    display: inline-block;
+}
+
+.font-list ol li .visiblewhenidle {
+    display: inline-block;
+}
+
+.font-list ol li.compiling .visiblewhenidle {
+    display: none;
+}
+
+.font-list .items {
+    margin-bottom: 10px;
+}
+
+.spacer {
+    height: 15px;
+}
+
+.selectable .ui-selecting {
+    background: #e6e7e8;
+}
+
+.font-list .selectable div {
+    padding: 7px;
+}
+
+#font-sources .selectable .ui-selected div {
+    background: #fd5bad;
+}
+
+#font-sources .selectable .ui-selected div.italic {
+    background: #fd896f;
+}
+
+#font-targets .selectable .ui-selected div {
+    background: #fdbb2d;
+}
+
+#font-targets .selectable .ui-selected div.italic {
+    background: #cfbc4d;
+}
+
+.selectable {
+    border-radius: 5px;
+    overflow: hidden;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.selectable li {
+    background: white;
+    /* height: 18px; */
+}
+
+.selectable li+li {
+    margin-top: 2px;
+}
+
+#target-settings-ui {
+    padding: 20px;
+}

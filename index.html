@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upsetter – Modern Font Subsetting</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <!-- Pyodide -->
+    <!-- <script src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"></script> -->
+
+    <!-- local -->
+    <link rel="stylesheet" href="static/index.css">
+
+    <!-- actual upsetter -->
+    <script src="static/upsetter/app.js"></script>
+    <!-- interface between local html and upsetter -->
+    <script src="static/app-interface.js"></script>
+
+</head>
+
+<body>
+    <div id="welcome">
+        <div class="logo"><span style="color: #22c1c3;">U</span><span style="color: #63bf96;">p</span><span
+                style="color: #9dbe6f;">s</span><span style="color: #cfbc4d;">e</span><span
+                style="color: #fdbb2d;">t</span><span style="color: #fd896f;">t</span><span
+                style="color: #fd5bad;">e</span><span style="color: #fd2dea;">r</span></div>
+        <p>Modern Font Subsetter</p>
+        <p>Loading <span id="loadingPercentage">0%</span></p>
+    </div>
+
+    <div id="dialog"></div>
+
+    <!-- <div id="font">
+        <div class="tabs">
+            <ul>
+                <li><a href="#languages">Languages</a></li>
+                <li><a href="#features">Features</a></li>
+            </ul>
+            <div id="languages">
+                <p>Note: For every script, languages may appear in more than one region. Therefore, be mindful that
+                    unselecting a
+                    language in one region will unselect all occurences of that language within the script.<br />
+                    Example: Unselecting French in Africa will also unselect French in Europe.</p>
+            </div>
+            <div id="features"></div>
+        </div>
+    </div> -->
+
+    <div id="app">
+        <div id="right">
+            <div>Version 0.0.1</div>
+            <div class="spacer"></div>
+            <div id="small-drop-area" class="drop-area">Drag and drop your source fonts here</div>
+            <div class="spacer"></div>
+            <div id="font-sources" class="font-list">
+                <div>Sources:</div>
+                <div class="spacer"></div>
+                <div class="items"></div>
+                <div>
+                    <button id="delete-sources-button">Delete</button>
+                </div>
+                <div class="spacer"></div>
+                <div>
+                    <button id="add-weights-button">Auto-add weights</button>
+                    <button id="add-single-weight-button">Add single weight</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="left">
+            <div id="font-targets" class="font-list">
+                <div>Targets:</div>
+                <div class="spacer"></div>
+                <div class="items"></div>
+                <div>
+                    <button id="delete-targets-button">Delete</button>
+                    <button id="generate-button">Generate</button>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button id="download-button">Download</button>
+            </div>
+        </div>
+
+
+        <div id="center">
+            <div id="target-settings-ui"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#add-weights-button").button().click(function () {
+                var IDs = upsetter.addTargetFonts();
+                unselectAllTargets();
+                selectTargetIDs(IDs);
+                updateUI();
+            });
+
+            $("#add-single-weight-button").button().click(function () {
+                var IDs = upsetter.addSingleWeight(selectedSourceIDs());
+                unselectAllTargets();
+                selectTargetIDs(IDs);
+                updateUI();
+            });
+
+            $("#delete-sources-button").button().click(function () {
+                deleteSelectedSources();
+            });
+            $("#delete-sources-button").button("option", "disabled", true);
+
+            $("#delete-targets-button").button().click(function () {
+                deleteSelectedTargets();
+            });
+            $("#delete-targets-button").button("option", "disabled", true);
+
+            $("#generate-button").button().click(function () {
+                upsetter.generate();
+            });
+
+            $("#download-button").button().click(function () {
+                upsetter.download();
+            });
+
+
+            $("#target-settings-ui").on("change", "input[name='compression']", function () {
+                // Update targets
+                for (const i in selectedTargetIDs()) {
+                    ID = selectedTargetIDs()[i];
+                    upsetter.updateTargetSettings(ID, "compression", $(this).val());
+                }
+
+                // Hide hint
+                $($(this).siblings(".hint")[0]).hide();
+            });
+
+        });
+    </script>
+</body>
+
+</html>
