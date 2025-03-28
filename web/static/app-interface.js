@@ -127,7 +127,7 @@ function sourcesLoaded(data) {
         });
     }
     else {
-        $('#font-sources .items').html("No sources loaded.");
+        $('#font-sources .items').html("<ol class='selectable'><li><div>No sources loaded.</div></li></ol>");
         sourcesAreAvailable(false);
     }
 
@@ -162,7 +162,7 @@ function targetsLoaded(data) {
         });
     }
     else {
-        $('#font-targets .items').html("⬅︎ Create targets from sources.");
+        $('#font-targets .items').html("<ol class='selectable'><li><div>⬅︎ Create targets from sources.</div></li></ol>");
         $("#delete-targets-button").button("option", "disabled", true);
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
@@ -190,10 +190,33 @@ function selectedSourceIDs() {
     return sources;
 }
 
+function unselectTargetIDs(IDs) {
+    for (const i in IDs) {
+        ID = IDs[i];
+        $(`li[targetfontid=${ID}]`).removeClass("ui-selected");
+    }
+    loadTargetSettingsUI();
+}
+
+function unselectAllTargets() {
+    $('#font-targets .items ol li').removeClass("ui-selected");
+    loadTargetSettingsUI();
+}
+
+function selectTargetIDs(IDs) {
+    for (const i in IDs) {
+        ID = IDs[i];
+        $(`li[targetfontid=${ID}]`).addClass("ui-selected");
+    }
+    loadTargetSettingsUI();
+}
+
 function targetIDs() {
     let targets = [];
     $('#font-targets .items ol li').each(function () {
-        targets.push($(this).attr("targetfontid"));
+        if ($(this).attr("targetfontid") != undefined) {
+            targets.push($(this).attr("targetfontid"));
+        }
     });
     return targets;
 }
@@ -201,17 +224,21 @@ function targetIDs() {
 function sourceIDs() {
     let targets = [];
     $('#font-sources .items ol li').each(function () {
-        targets.push($(this).attr("sourcefontid"));
+        if ($(this).attr("sourcefontid") != undefined) {
+            targets.push($(this).attr("sourcefontid"));
+        }
     });
     return targets;
 }
 
 function deleteSelectedTargets() {
     upsetter.deleteTargets(selectedTargetIDs());
+    updateUI();
 }
 
 function deleteSelectedSources() {
     upsetter.deleteSources(selectedSourceIDs());
+    updateUI();
 }
 
 function updateTarget(data) {
@@ -256,6 +283,13 @@ function updateUI() {
     if (sourceIDs().length == 0) {
         $("#add-single-weight-button").button("option", "disabled", true);
         $("#delete-sources-button").button("option", "disabled", true);
+    }
+
+    if (selectedTargetIDs().length > 0) {
+        $("#delete-targets-button").button("option", "disabled", false);
+    }
+    else {
+        $("#delete-targets-button").button("option", "disabled", true);
     }
 
     loadTargetSettingsUI();

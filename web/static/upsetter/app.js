@@ -343,33 +343,36 @@ def getFontTarget(sourceFont=None, ID=None):
     }
 
     reloadSources() {
-        console.log("reloadSources()");
         const fontSources = this.fontSourcesInformation();
         this.options.sourcesLoadedFunction(fontSources);
     }
 
-    async addTargetFonts() {
-        pyodide.runPython(`
-
+    addTargetFonts() {
+        var IDs = JSON.parse(pyodide.runPython(`
+            list = []
             for fileName, sourceFont in fontSources.items():
                 targetFont = getFontTarget(sourceFont=sourceFont)
-
-        `);
+                list.append(targetFont.ID)
+            json.dumps(list)
+        `));
 
         // Now call fontSourcesInformation
         this.reloadTargets();
 
+        return IDs;
+
     }
 
-    async addSingleWeight(IDs) {
+    addSingleWeight(IDs) {
 
+        var list = [];
         for (const ID of IDs) {
-            pyodide.runPython(`
-
+            var newID = JSON.parse(pyodide.runPython(`
                 sourceFont = getFontSource("${ID}")
                 targetFont = getFontTarget(sourceFont=sourceFont)
-
-            `);
+                json.dumps(targetFont.ID)
+            `));
+            list.push(newID);
         }
 
         // pyodide.runPython(`
@@ -381,6 +384,8 @@ def getFontTarget(sourceFont=None, ID=None):
 
         // Now call fontSourcesInformation
         this.reloadTargets();
+
+        return list;
 
     }
 

@@ -62,6 +62,7 @@
             <div id="small-drop-area" class="drop-area">Drag and drop your fonts here</div>
             <div id="font-sources" class="font-list">
                 <div>Sources:</div>
+                <div class="spacer"></div>
                 <div class="items"></div>
                 <div>
                     <button id="delete-sources-button">Delete</button>
@@ -77,6 +78,7 @@
         <div id="left">
             <div id="font-targets" class="font-list">
                 <div>Targets:</div>
+                <div class="spacer"></div>
                 <div class="items"></div>
                 <div>
                     <button id="delete-targets-button">Delete</button>
@@ -98,11 +100,17 @@
     <script>
         $(document).ready(function () {
             $("#add-weights-button").button().click(function () {
-                upsetter.addTargetFonts();
+                var IDs = upsetter.addTargetFonts();
+                unselectAllTargets();
+                selectTargetIDs(IDs);
+                updateUI();
             });
 
             $("#add-single-weight-button").button().click(function () {
-                upsetter.addSingleWeight(selectedSourceIDs());
+                var IDs = upsetter.addSingleWeight(selectedSourceIDs());
+                unselectAllTargets();
+                selectTargetIDs(IDs);
+                updateUI();
             });
 
             $("#delete-sources-button").button().click(function () {
