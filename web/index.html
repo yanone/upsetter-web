@@ -122,6 +122,19 @@
             $("#download-button").button().click(function () {
                 upsetter.download();
             });
+
+
+            $("#target-settings-ui").on("change", "input[name='compression']", function () {
+                // Update targets
+                for (const i in selectedTargetIDs()) {
+                    ID = selectedTargetIDs()[i];
+                    upsetter.updateTargetSettings(ID, "compression", $(this).val());
+                }
+
+                // Hide hint
+                $($(this).siblings(".hint")[0]).hide();
+            });
+
         });
     </script>
 </body>

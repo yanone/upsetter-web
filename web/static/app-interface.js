@@ -378,19 +378,6 @@ function targetSettingsHTML() {
       icon: false
     });
 
-    // Add event listener for the radio group
-    $("input[name='compression']").on("change", function() {
-
-        // Update targets
-        for (const i in selectedTargetIDs()) {
-            ID = selectedTargetIDs()[i];
-            upsetter.updateTargetSettings(ID, "compression", $(this).val());
-        }
-
-        // Hide hint
-        $($(this).siblings(".hint")[0]).hide();
-
-      });
 
     } );
     </script>
