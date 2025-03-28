@@ -5,6 +5,9 @@ on:
     branches:
       - main  # Replace with your default branch name if different
 
+permissions:
+  id-token: write
+
 jobs:
   # Single deploy job no building
   deploy:
