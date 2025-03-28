@@ -273,9 +273,9 @@ class FontSource {
     }
 
     html() {
-        html = `<li sourcefontid="${this.options.data["fileName"]}">${this.options.data["fileName"]}<br />`;
+        html = `<li sourcefontid="${this.options.data["fileName"]}"><div class="${this.options.data.isItalic ? "italic" : ""}">${this.options.data["fileName"]}<br />`;
         html += `<b>${this.options.data["type"]} ${this.options.data["weightClass"]}</b> (${this.options.data["size"]}kB)`;
-        html += "</li>";
+        html += "</div></li>";
         return html;
     }
 }
@@ -291,7 +291,7 @@ class FontTarget {
         return html;
     }
     innerHTML() {
-        html = `${this.options.sourceFont}${this.options.needsCompilation ? "<b>***</b>" : ""}<br />`;
+        html = `<div class="${this.options.isItalic ? "italic" : ""}">${this.options.sourceFont}${this.options.needsCompilation ? "<b>***</b>" : ""}<br />`;
         html += `<span class="visiblewhenidle">(`
         if (this.options.size_uncompressed) {
             html += `u:${this.options.size_uncompressed}kB`
@@ -302,7 +302,7 @@ class FontTarget {
         if (this.options.size_compressed) {
             html += `c:${this.options.size_compressed}kB`
         }
-        html += `)</span > <span class="visiblewhencompiling">compiling</span>`
+        html += `)</span > <span class="visiblewhencompiling">compiling</span></div>`
 
         return html;
     }

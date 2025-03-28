@@ -185,19 +185,23 @@ a.ui-button:active,
     background: #e6e7e8;
 }
 
-#font-sources .selectable .ui-selected {
+.font-list .selectable div {
+    padding: 7px;
+}
+
+#font-sources .selectable .ui-selected div {
     background: #fd5bad;
 }
 
-#font-sources .selectable .ui-selected.italic {
+#font-sources .selectable .ui-selected div.italic {
     background: #fd896f;
 }
 
-#font-targets .selectable .ui-selected {
+#font-targets .selectable .ui-selected div {
     background: #fdbb2d;
 }
 
-#font-targets .selectable .ui-selected.italic {
+#font-targets .selectable .ui-selected div.italic {
     background: #cfbc4d;
 }
 
@@ -212,7 +216,6 @@ a.ui-button:active,
 
 .selectable li {
     background: white;
-    padding: 5px;
     /* height: 18px; */
 }
 
