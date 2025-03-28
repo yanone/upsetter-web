@@ -162,7 +162,7 @@ function targetsLoaded(data) {
         });
     }
     else {
-        $('#font-targets .items').html("No targets created.");
+        $('#font-targets .items').html("⬅︎ Create targets from sources.");
         $("#delete-targets-button").button("option", "disabled", true);
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
@@ -332,7 +332,7 @@ function collectData(ID, key) {
 function targetSettingsHTML() {
 
     if (selectedTargetIDs().length == 0) {
-        return "Please select one or more targets to edit them.";
+        return "⬅ Select one or more targets to edit them.";
     }
 
     html = ``;

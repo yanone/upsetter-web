@@ -4,9 +4,6 @@ html {
 }
 
 body {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 10pt;
-
     margin: 0;
     padding: 0;
     line-height: 1.5;
@@ -20,9 +17,22 @@ fieldset {
     border-style: none;
 }
 
+body,
 .ui-widget {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 10pt;
+    font-size: 11pt;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+a.ui-button:active,
+.ui-button:active,
+.ui-button.ui-state-active:hover {
+    border: 2px solid #003eff;
+    background: #22c1c3;
+    font-weight: bold;
+    color: #ffffff;
 }
 
 .ui-tabs {
@@ -163,6 +173,10 @@ fieldset {
     display: none;
 }
 
+.font-list .items {
+    margin-bottom: 10px;
+}
+
 .spacer {
     height: 15px;
 }
@@ -175,23 +189,35 @@ fieldset {
     background: #fd5bad;
 }
 
-#font-targets .selectable .ui-selected {
+#font-sources .selectable .ui-selected.italic {
     background: #fd896f;
 }
 
+#font-targets .selectable .ui-selected {
+    background: #fdbb2d;
+}
+
+#font-targets .selectable .ui-selected.italic {
+    background: #cfbc4d;
+}
+
 .selectable {
+    border-radius: 5px;
+    overflow: hidden;
     list-style-type: none;
     margin: 0;
     padding: 0;
     width: 100%;
-    margin-bottom: 10px;
 }
 
 .selectable li {
     background: white;
-    margin: 2px;
     padding: 5px;
     /* height: 18px; */
+}
+
+.selectable li+li {
+    margin-top: 2px;
 }
 
 #target-settings-ui {
