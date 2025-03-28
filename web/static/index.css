@@ -86,16 +86,6 @@ a.ui-button:active,
     background-color: rgba(0, 0, 0, .01);
 }
 
-#big-drop-area {
-    width: 600px;
-    height: 400px;
-    line-height: 400px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
 #small-drop-area {
     display: block;
     width: 100%;

@@ -94,7 +94,10 @@ function appIsReady() {
     // logo delay in case it loads too fast
     setTimeout(function () {
         $('#welcome').hide();
-        $('#big-drop-area').show();
+        $('#app').show();
+        $('#app').css('display', 'flex');
+        sourcesLoaded([]);
+        targetsLoaded([]);
     }, 0);
 }
 
@@ -131,9 +134,6 @@ function sourcesLoaded(data) {
         sourcesAreAvailable(false);
     }
 
-    $('#big-drop-area').hide();
-    $('#app').show();
-    $('#app').css('display', 'flex');
 
 }
 
@@ -308,7 +308,7 @@ class FontSource {
 
     html() {
         html = `<li sourcefontid="${this.options.data["fileName"]}"><div class="${this.options.data.isItalic ? "italic" : ""}">${this.options.data["fileName"]}<br />`;
-        html += `<b>${this.options.data["type"]} ${this.options.data["weightClass"]}</b> (${this.options.data["size"]}kB)`;
+        html += `${this.options.data["type"]} ${this.options.data["weightClass"]} (${this.options.data["size"]}kB)`;
         html += "</div></li>";
         return html;
     }
