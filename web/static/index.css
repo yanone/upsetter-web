@@ -17,9 +17,13 @@ fieldset {
     border-style: none;
 }
 
-body,
-.ui-widget {
+body {
     font-family: "IBM Plex Mono", monospace;
+    font-size: 11pt;
+}
+
+.ui-widget {
+    font-family: "IBM Plex Sans", sans-serif;
     font-size: 11pt;
 }
 
