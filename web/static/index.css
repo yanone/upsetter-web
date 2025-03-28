@@ -183,11 +183,11 @@ a.ui-button:active,
 }
 
 #font-sources .selectable .ui-selected div {
-    background: #fd5bad;
+    background: #fd896f;
 }
 
 #font-sources .selectable .ui-selected div.italic {
-    background: #fd896f;
+    background: #fd5bad;
 }
 
 #font-targets .selectable .ui-selected div {
