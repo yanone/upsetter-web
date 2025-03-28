@@ -46,7 +46,7 @@ import upsetter
 os.makedirs("${SOURCESFOLDER}", exist_ok=True)
 os.makedirs("${TARGETSFOLDER}", exist_ok=True)
 
-class UpsetterTTFont(TTFont):
+class UpsetterFont(TTFont):
     def familyName(self):
         name = self["name"]
         familyName = name.getName(16, 3, 1, 1033)
@@ -63,7 +63,7 @@ fontSources = {}
 class FontSource(object):
     def __init__(self, fileName):
         self.fileName = fileName
-        self.ttFont = UpsetterTTFont(f"${SOURCESFOLDER}/{self.fileName}")
+        self.ttFont = UpsetterFont(f"${SOURCESFOLDER}/{self.fileName}")
     def delete(self):
         os.remove(f"${SOURCESFOLDER}/{self.fileName}")
         del fontSources[self.fileName]
@@ -217,7 +217,7 @@ def getFontTarget(sourceFont=None, ID=None):
 
             pyodide.runPython(`
                 try:
-                    source_font = TTFont("${SOURCESFOLDER}/${fileName}")
+                    source_font = UpsetterFont("${SOURCESFOLDER}/${fileName}")
                 except TTLibError:
                     source_font = None
             `);
