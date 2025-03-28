@@ -117,6 +117,7 @@ class FontTarget(object):
             "isItalic": self.sourceFont.ttFont.isItalic(),
             "weightClass": self.sourceFont.ttFont.get("OS/2").usWeightClass,
             "ID": self.ID,
+            "source_size": round(os.path.getsize(f"${SOURCESFOLDER}/{self.sourceFont.fileName}") / 1000),
             "size_uncompressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.fileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}") and self.settings["compression"] in ("uncompressed", "both") else 0) / 1000),
             "size_compressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.compressedFileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}") and self.settings["compression"] in ("compressed", "both") else 0) / 1000),
             "settings": self.settings,

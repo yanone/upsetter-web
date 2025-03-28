@@ -326,17 +326,17 @@ class FontTarget {
     }
     innerHTML() {
         html = `<div class="${this.options.isItalic ? "italic" : ""}">${this.options.sourceFont}${this.options.needsCompilation ? "<b>***</b>" : ""}<br />`;
-        html += `<span class="visiblewhenidle">(`
+        html += `<span class="visiblewhenidle">`
         if (this.options.size_uncompressed) {
-            html += `u:${this.options.size_uncompressed}kB`
+            html += `uncmpr:${this.options.size_uncompressed}kB (${Math.round(100 * this.options.size_uncompressed / this.options.source_size)}%)`
         }
         if (this.options.size_uncompressed && this.options.size_compressed) {
-            html += `+`
+            html += `, `
         }
         if (this.options.size_compressed) {
-            html += `c:${this.options.size_compressed}kB`
+            html += `compr:${this.options.size_compressed}kB (${Math.round(100 * this.options.size_compressed / this.options.source_size)}%)`
         }
-        html += `)</span > <span class="visiblewhencompiling">compiling</span></div>`
+        html += `</span > <span class="visiblewhencompiling">compiling...</span></div>`
 
         return html;
     }
