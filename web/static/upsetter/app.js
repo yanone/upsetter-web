@@ -13,6 +13,8 @@ class Upsetter {
         // User settings
         this.user_settings = {};
 
+        this.options.initialLoadingPercentageFunction(0);
+
         // Load Pyodide
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js';
@@ -21,14 +23,29 @@ class Upsetter {
 
         // Script is loaded, run this.readyFunction()
         script.onload = () => this.loadPyodide().then(() => {
-            this.options.readyFunction();
+            this.options.initialLoadingPercentageFunction(100);
+            // 500ms timeout
+            setTimeout(() => {
+                this.options.readyFunction();
+            }, 500);
+
         });
     }
 
     async loadPyodide() {
+
         pyodide = await loadPyodide();
+
+        this.options.initialLoadingPercentageFunction(20);
+
         await pyodide.loadPackage('micropip');
+
+        this.options.initialLoadingPercentageFunction(40);
+
         await pyodide.loadPackage('static/upsetter/upsetter-0.1.0a6-py3-none-any.whl');
+
+        this.options.initialLoadingPercentageFunction(60);
+
         await pyodide.runPythonAsync(`
 import micropip
 import os
@@ -38,6 +55,8 @@ from pyodide.code import run_js
 
 await micropip.install("fonttools==4.55.8")
 from fontTools.ttLib import TTFont, TTLibError
+
+run_js("upsetter.options.initialLoadingPercentageFunction(80);")
 
 await micropip.install("brotli")
 

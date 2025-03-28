@@ -6,6 +6,7 @@ $(document).ready(function () {
     async function main() {
         upsetter = new Upsetter({
             readyFunction: appIsReady,
+            initialLoadingPercentageFunction: initialLoadingPercentage,
             messageFunction: message,
             okaycancelFunction: okaycancel,
             sourcesLoadedFunction: sourcesLoaded,
@@ -99,6 +100,10 @@ function appIsReady() {
         sourcesLoaded([]);
         targetsLoaded([]);
     }, 0);
+}
+
+function initialLoadingPercentage(percentage) {
+    $("#loadingPercentage").html(`${percentage}%`);
 }
 
 function sourcesLoaded(data) {
