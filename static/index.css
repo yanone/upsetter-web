@@ -33,9 +33,9 @@ body {
 a.ui-button:active,
 .ui-button:active,
 .ui-button.ui-state-active:hover {
-    border: 2px solid #003eff;
+    border: 1px solid #003eff;
     background: #22c1c3;
-    font-weight: bold;
+    font-weight: normal;
     color: #ffffff;
 }
 
