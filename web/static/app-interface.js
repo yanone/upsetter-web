@@ -168,7 +168,7 @@ function targetsLoaded(data) {
         });
     }
     else {
-        $('#font-targets .items').html("<ol class='selectable'><li><div>⬅︎ Create targets from sources.</div></li></ol>");
+        $('#font-targets .items').html("<ol class='selectable'><li><div><span class='arrow'>←</span> Create targets from sources.</div></li></ol>");
         $("#delete-targets-button").button("option", "disabled", true);
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
@@ -374,7 +374,7 @@ function collectData(ID, key) {
 function targetSettingsHTML() {
 
     if (selectedTargetIDs().length == 0) {
-        return "<div style='visibility: hidden'>.</div><div class='spacer'></div><div>⬅ Select one or more targets to edit them.</div>";
+        return "<div style='visibility: hidden'>.</div><div class='spacer'></div><div><span class='arrow'>←</span> Select one or more targets to edit them.</div>";
     }
 
     html = ``;

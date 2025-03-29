@@ -18,7 +18,7 @@ fieldset {
 }
 
 body {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "IBM Plex Sans", monospace;
     font-size: 11pt;
 }
 
@@ -218,4 +218,10 @@ a.ui-button:active,
 
 #target-settings-ui {
     padding: 20px;
+}
+
+.arrow {
+    font-size: 14pt;
+    line-height: 10pt;
+    margin-right: 5px;
 }
