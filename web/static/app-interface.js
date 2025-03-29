@@ -99,6 +99,7 @@ function appIsReady() {
         $('#app').css('display', 'flex');
         sourcesLoaded([]);
         targetsLoaded([]);
+        loadTargetSettingsUI();
     }, 0);
 }
 
@@ -135,7 +136,7 @@ function sourcesLoaded(data) {
         });
     }
     else {
-        $('#font-sources .items').html("<ol class='selectable'><li><div>No sources loaded.</div></li></ol>");
+        $('#font-sources .items').html("<ol class='selectable'><li><div>Drag & drop your source fonts here.</div></li></ol>");
         sourcesAreAvailable(false);
     }
 
@@ -373,7 +374,7 @@ function collectData(ID, key) {
 function targetSettingsHTML() {
 
     if (selectedTargetIDs().length == 0) {
-        return "⬅ Select one or more targets to edit them.";
+        return "<div style='visibility: hidden'>.</div><div class='spacer'></div><div>⬅ Select one or more targets to edit them.</div>";
     }
 
     html = ``;
