@@ -20,11 +20,28 @@ fieldset {
 body {
     font-family: "IBM Plex Sans", monospace;
     font-size: 11pt;
+    letter-spacing: 0.02em;
+}
+
+.material-symbols-outlined {
+    font-size: 15pt;
+    line-height: 8pt;
+    position: relative;
+    top: 4px;
+}
+
+.ui-button {
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    padding-bottom: 0.4em;
+    padding-left: 0.4em;
+    margin-bottom: 5px;
 }
 
 .ui-widget {
     font-family: "IBM Plex Sans", sans-serif;
     font-size: 11pt;
+    letter-spacing: 0.02em;
 }
 
 .ui-state-active,
