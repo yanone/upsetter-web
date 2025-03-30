@@ -73,6 +73,27 @@ function appIsReady() {
 
     $("#add-single-weight-button").button("option", "disabled", true);
 
+    // Prepare BODY
+
+    let dragCounter = 0;
+
+    $(document).on("dragenter", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        dragCounter++;
+        $(".default").hide();
+        $(".file-dragging").show();
+    });
+    $(document).on("dragleave", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        dragCounter--;
+        if (dragCounter === 0) {
+            $(".default").show();
+            $(".file-dragging").hide();
+        }
+    });
+
     // Prepare drop-over area
     $(".drop-area").on("dragover", function (event) {
         event.preventDefault();
@@ -90,6 +111,10 @@ function appIsReady() {
         $(this).removeClass("drag");
 
         upsetter.uploadFiles(event.originalEvent.dataTransfer.files);
+
+        dragCounter = 0; // Reset the counter
+        $(".default").show();
+        $(".file-dragging").hide();
     });
 
     // logo delay in case it loads too fast
@@ -136,7 +161,7 @@ function sourcesLoaded(data) {
         });
     }
     else {
-        $('#font-sources .items').html("<ol class='selectable'><li><div>Drag & drop your source fonts here.</div></li></ol>");
+        $('#font-sources .items').html("<ol class='selectable'><li><div><span class='material-symbols-outlined'>place_item</span> Drag & drop source fonts here</div></li></ol>");
         sourcesAreAvailable(false);
     }
 
@@ -168,7 +193,7 @@ function targetsLoaded(data) {
         });
     }
     else {
-        $('#font-targets .items').html("<ol class='selectable'><li><div><span class='arrow'>←</span> Create targets from sources.</div></li></ol>");
+        $('#font-targets .items').html("<ol class='selectable'><li><div><span class='material-symbols-outlined'>arrow_back</span> Create targets from sources</div></li></ol>");
         $("#delete-targets-button").button("option", "disabled", true);
         fontsCanBeDownloaded(false);
         fontsCanBeGenerated(false);
@@ -374,7 +399,7 @@ function collectData(ID, key) {
 function targetSettingsHTML() {
 
     if (selectedTargetIDs().length == 0) {
-        return "<div style='visibility: hidden'>.</div><div class='spacer'></div><div><span class='arrow'>←</span> Select one or more targets to edit them.</div>";
+        return "<div style='visibility: hidden'>.</div><div class='spacer'></div><div><span class='material-symbols-outlined'>arrow_back</span> Select one or more targets to edit them</div>";
     }
 
     html = ``;

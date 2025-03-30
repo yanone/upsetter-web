@@ -62,26 +62,30 @@
 
     <div id="app">
         <div id="right">
-            <div id="font-sources" class="font-list">
-                <div>Sources:</div>
-                <div class="spacer"></div>
-                <div class="items"></div>
-                <div>
-                    <button id="delete-sources-button" title="Delete selected sources"><span
-                            class="material-symbols-outlined">
-                            delete
-                        </span></button>
+            <div class="default">
+                <div id="font-sources" class="font-list">
+                    <div>Sources:</div>
+                    <div class="spacer"></div>
+                    <div class="items"></div>
+                    <div>
+                        <button id="delete-sources-button" title="Delete selected sources"><span
+                                class="material-symbols-outlined">
+                                delete
+                            </span></button>
+                    </div>
+                    <div class="spacer"></div>
+                    <div>
+                        <button id="add-weights-button">Auto-add weights</button>
+                        <button id="add-single-weight-button">Add single weight</button>
+                    </div>
                 </div>
                 <div class="spacer"></div>
-                <div>
-                    <button id="add-weights-button">Auto-add weights</button>
-                    <button id="add-single-weight-button">Add single weight</button>
-                </div>
+                <div>Version 0.0.1a</div>
             </div>
-            <div class="spacer"></div>
-            <div id="small-drop-area" class="drop-area">Drag and drop your source fonts here</div>
-            <div class="spacer"></div>
-            <div>Version 0.0.1a</div>
+            <div class="file-dragging">
+                <div id="small-drop-area" class="drop-area"><span class="material-symbols-outlined">place_item</span>
+                    Drag & drop source fonts here</div>
+            </div>
         </div>
 
         <div id="left">

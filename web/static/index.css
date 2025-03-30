@@ -27,7 +27,7 @@ body {
     font-size: 15pt;
     line-height: 8pt;
     position: relative;
-    top: 4px;
+    top: 5px;
 }
 
 .ui-button {
@@ -105,9 +105,11 @@ a.ui-button:active,
 
 #small-drop-area {
     display: block;
-    width: 100%;
-    padding-top: 100px;
-    padding-bottom: 100px;
+    max-width: 100%;
+    padding-top: 50px;
+    padding-left: 40px;
+    padding-right: 40px;
+    height: calc(100vh - 235px);
 }
 
 .drop-area.drag {
@@ -241,6 +243,10 @@ a.ui-button:active,
     font-size: 14pt;
     line-height: 10pt;
     margin-right: 5px;
+}
+
+.file-dragging {
+    display: none;
 }
 
 /* TOOLTIP */
