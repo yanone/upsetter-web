@@ -358,7 +358,7 @@ class FontTarget {
         return html;
     }
     innerHTML() {
-        html = `<div class="${this.options.isItalic ? "italic" : ""}">${this.options.sourceFont}${this.options.needsCompilation ? "<b>***</b>" : ""}<br />`;
+        html = `<div class="${this.options.isItalic ? "italic" : ""}">${this.options.sourceFont}${this.options.needsCompilation ? " <span class='material-symbols-outlined' title='This font needs to be re-generated'>change_circle</span>" : ""}<br />`;
         html += `<span class="visiblewhenidle">`
         if (this.options.size_uncompressed) {
             html += `uncmpr:${this.options.size_uncompressed}kB (${Math.round(100 * this.options.size_uncompressed / this.options.source_size)}%)`
