@@ -189,6 +189,10 @@ a.ui-button:active,
     margin-bottom: 10px;
 }
 
+.font-list .name {
+    font-weight: 500;
+}
+
 .spacer {
     height: 15px;
 }
