@@ -109,7 +109,7 @@ a.ui-button:active,
     padding-top: 50px;
     padding-left: 40px;
     padding-right: 40px;
-    height: calc(100vh - 235px);
+    height: calc(100vh - 85px);
 }
 
 .drop-area.drag {

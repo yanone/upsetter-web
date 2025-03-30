@@ -68,18 +68,21 @@
                     <div class="spacer"></div>
                     <div class="items"></div>
                     <div>
-                        <button id="delete-sources-button" title="Delete selected sources"><span
-                                class="material-symbols-outlined">
+                        <button id="delete-sources-button"><span class="material-symbols-outlined">
                                 delete
                             </span></button>
                     </div>
                     <div class="spacer"></div>
                     <div>
-                        <button id="add-weights-button">Auto-add weights</button>
-                        <button id="add-single-weight-button">Add single weight</button>
+                        <button id="add-weights-button"
+                            title="Adds an automatically generated list of target fonts. For static fonts, this adds one target per source font. For variable fonts, this adds one target per 'fvar' instance of each source font.">Auto-add
+                            targets</button>
+                        <button id="add-single-weight-button" title="Adds one target for each selected source.">Add
+                            single target</button>
                     </div>
                 </div>
-                <div class="spacer"></div>
+                <div class=" spacer">
+                </div>
                 <div>Version 0.0.1a</div>
             </div>
             <div class="file-dragging">
@@ -94,11 +97,11 @@
                 <div class="spacer"></div>
                 <div class="items"></div>
                 <div>
-                    <button id="delete-targets-button" title="Delete selected targets"><span
-                            class="material-symbols-outlined">
+                    <button id="delete-targets-button"><span class="material-symbols-outlined">
                             delete
                         </span></button>
-                    <button id="generate-button">Generate</button>
+                    <button id="generate-button"
+                        title="Generate new target fonts after settings were changed. All fonts need to be generated before you can download them.">Generate</button>
                 </div>
             </div>
             <div class="spacer"></div>
