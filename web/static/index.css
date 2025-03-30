@@ -32,9 +32,9 @@ body {
 
 .ui-button {
     padding-top: 0.4em;
-    padding-right: 0.4em;
+    padding-right: 0.6em;
     padding-bottom: 0.4em;
-    padding-left: 0.4em;
+    padding-left: 0.6em;
     margin-bottom: 5px;
 }
 
@@ -241,4 +241,16 @@ a.ui-button:active,
     font-size: 14pt;
     line-height: 10pt;
     margin-right: 5px;
+}
+
+/* TOOLTIP */
+
+.mytooltip {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }

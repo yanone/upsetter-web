@@ -67,7 +67,8 @@
                 <div class="spacer"></div>
                 <div class="items"></div>
                 <div>
-                    <button id="delete-sources-button"><span class="material-symbols-outlined">
+                    <button id="delete-sources-button" title="Delete selected sources"><span
+                            class="material-symbols-outlined">
                             delete
                         </span></button>
                 </div>
@@ -89,7 +90,8 @@
                 <div class="spacer"></div>
                 <div class="items"></div>
                 <div>
-                    <button id="delete-targets-button"><span class="material-symbols-outlined">
+                    <button id="delete-targets-button" title="Delete selected targets"><span
+                            class="material-symbols-outlined">
                             delete
                         </span></button>
                     <button id="generate-button">Generate</button>
@@ -153,6 +155,10 @@
 
                 // Hide hint
                 $($(this).siblings(".hint")[0]).hide();
+            });
+
+            $(document).tooltip({
+                tooltipClass: "mytooltip",
             });
 
         });
