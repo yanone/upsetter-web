@@ -484,13 +484,6 @@ function targetSettingsHTML() {
     <legend class="hint" style="display: ${compression.length > 1 ? "block" : "none"};">(Multiple values selected)</legend>
     </fieldset>
     </div>
-    <script>
-    $( function() {
-        $( "input" ).checkboxradio({
-        icon: false
-        });
-    } );
-    </script>
     `;
 
     html += `<p></p>`;
@@ -523,15 +516,18 @@ function targetSettingsHTML() {
         <input type="radio" name="feature_${feature}" id="feature_${feature}_drop" value="drop">
         </fieldset>
         </div>
-        <script>
-        $( function() {
-            $( "input" ).checkboxradio({
-            icon: false
-            });
-        } );
-        </script>
         `;
     }
+
+    html += `
+    <script>
+    $( function() {
+        $("input[type='radio']").checkboxradio({
+        icon: false
+        });
+    } );
+    </script>
+        `;
 
 
     return html;
