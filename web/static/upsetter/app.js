@@ -7,6 +7,50 @@ const SOURCESFOLDER = "sources";
 const TARGETSFOLDER = "targets";
 const DOWNLOADSFOLDER = "download";
 
+optional_opentype_features_names = {
+    "afrc": "Alternative Fractions",
+    "calt": "Contextual Alternates",
+    "case": "Case-Sensitive Forms",
+    "clig": "Contextual Ligatures",
+    "dlig": "Discretionary Ligatures",
+    "frac": "Fractions",
+    "hist": "Historical Forms",
+    "hlig": "Historical Ligatures",
+    "liga": "Standard Ligatures",
+    "lnum": "Lining Figures",
+    "onum": "Oldstyle Figures",
+    "pnum": "Proportional Figures",
+    "salt": "Stylistic Alternates",
+    "smcp": "Small Capitals",
+    "ss01": "Stylistic Set 1",
+    "ss02": "Stylistic Set 2",
+    "ss03": "Stylistic Set 3",
+    "ss04": "Stylistic Set 4",
+    "ss05": "Stylistic Set 5",
+    "ss06": "Stylistic Set 6",
+    "ss07": "Stylistic Set 7",
+    "ss08": "Stylistic Set 8",
+    "ss09": "Stylistic Set 9",
+    "ss10": "Stylistic Set 10",
+    "ss11": "Stylistic Set 11",
+    "ss12": "Stylistic Set 12",
+    "ss13": "Stylistic Set 13",
+    "ss14": "Stylistic Set 14",
+    "ss15": "Stylistic Set 15",
+    "ss16": "Stylistic Set 16",
+    "ss17": "Stylistic Set 17",
+    "ss18": "Stylistic Set 18",
+    "ss19": "Stylistic Set 19",
+    "ss20": "Stylistic Set 20",
+    "subs": "Subscript",
+    "sups": "Superscript",
+    "swsh": "Swash",
+    "titl": "Titling",
+    "tnum": "Tabular Figures",
+    "zero": "Slashed Zero",
+}
+
+
 class Upsetter {
     constructor(options) {
         this.options = options;
@@ -98,12 +142,14 @@ optional_opentype_features = [
     "zero",
 ]
 
+
 await micropip.install("fonttools==4.55.8")
 from fontTools.ttLib import TTFont, TTLibError
 
 run_js("upsetter.options.initialLoadingPercentageFunction(80);")
 
 await micropip.install("brotli")
+await micropip.install("opentype-feature-freezer")
 
 import upsetter
 
@@ -136,9 +182,30 @@ class UpsetterFont(TTFont):
             ot_features.add(FeatureRecord.FeatureTag)
         # prune against optional_opentype_features
         ot_features = ot_features.intersection(set(optional_opentype_features))
-
         return sorted(list(ot_features))
+    def stylisticSetNames(self):
+        # Extract name table for readable names
+        name = self["name"]
+        
+        # GSUB table contains feature info
+        if "GSUB" not in self:
+            print("No GSUB table found.")
+            return {}
+        
+        gsub_table = self["GSUB"].table
+        feature_names = {}
 
+        for feature_record in gsub_table.FeatureList.FeatureRecord:
+            feature_tag = feature_record.FeatureTag
+            
+            # Look for stylistic sets (ss01 - ss20)
+            if feature_tag.startswith("ss"):
+                if hasattr(feature_record.Feature.FeatureParams, "UINameID"):  # Some fonts use UINameID for feature name
+                    name_id = feature_record.Feature.FeatureParams.UINameID
+                    feature_name = name.getName(name_id, 3, 1, 1033).toUnicode()
+                    feature_names[feature_tag] = feature_name
+        
+        return feature_names
 
 fontSources = {}
 
@@ -192,6 +259,7 @@ class FontTarget(object):
         if os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
             os.remove(f"${TARGETSFOLDER}/{self.fileName()}")
     def updateSetting(self, key, value):
+        print(self.name(), key, value)
         self.settings[key] = value
     def data(self):
         _data = {
@@ -205,7 +273,8 @@ class FontTarget(object):
             "settings": self.settings,
             "needsCompilation": self.needsCompilation(),
             "optionalOTfeatures": self.sourceFont.ttFont.optionalOTfeatures(),
-            "name": self.name()
+            "name": self.name(),
+            "stylisticSetNames": self.sourceFont.ttFont.stylisticSetNames(),
 
         }
         return _data
@@ -218,7 +287,10 @@ class FontTarget(object):
     def needsCompilation(self):
         return self.settings != self.last_compilation_settings
     def compile(self):
-        self.ttFont = upsetter.font_subset(self.sourceFont.ttFont)
+        self.ttFont = copy.deepcopy(self.sourceFont.ttFont)
+        if self.settings["freeze_features"]:
+            self.ttFont = upsetter.font_freeze_features(self.ttFont, self.settings["freeze_features"], None)
+        self.ttFont = upsetter.font_subset(self.sourceFont.ttFont, remove_features=self.settings["drop_features"] or None)
 
         if self.settings["compression"] in ("uncompressed", "both"):
             self.ttFont.save(f"${TARGETSFOLDER}/{self.fileName()}")
@@ -383,8 +455,7 @@ def getFontTarget(sourceFont=None, ID=None):
         pyodide.runPython(`
             getFontTarget(ID=${ID}).updateSetting("${key}", json.loads('${JSON.stringify(value)}'))
         `);
-        this.options.updateTargetFunction(JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`))); // Update the target font
-
+        this.options.updateTargetFunction(JSON.parse(pyodide.runPython(`json.dumps(getFontTarget(ID=${ID}).data())`)));
     }
 
     async deleteSource(fileName) {

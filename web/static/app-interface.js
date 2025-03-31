@@ -423,7 +423,7 @@ class FontTarget {
     }
 }
 
-function collectSettings(ID, key) {
+function collectSettings(key) {
     var list_of_settings = new Set();
     for (const i in selectedTargetIDs()) {
         ID = selectedTargetIDs()[i];
@@ -433,7 +433,7 @@ function collectSettings(ID, key) {
     return Array.from(list_of_settings);
 }
 
-function collectData(ID, key) {
+function collectData(key) {
     var list_of_settings = new Set();
     for (const i in selectedTargetIDs()) {
         ID = selectedTargetIDs()[i];
@@ -453,12 +453,12 @@ function targetSettingsHTML() {
     html = ``;
 
     // Based on which source
-    sourceFont = collectData(ID, "sourceFont");
+    sourceFont = collectData("sourceFont");
     if (sourceFont.length == 1) {
         sourceFont = sourceFont[0];
     }
     else {
-        sourceFont = "Multiple fonts selected";
+        sourceFont = "Multiple source fonts";
     }
     html += `
     <div>
@@ -468,7 +468,7 @@ function targetSettingsHTML() {
     `
 
     // Compression
-    compression = collectSettings(ID, "compression");
+    compression = collectSettings("compression");
 
     html += ``;
     html += `
@@ -481,64 +481,148 @@ function targetSettingsHTML() {
     <input type="radio" name="compression" id="compressed" value="compressed" ${compression.length == 1 && compression[0] == "compressed" ? "checked" : ""}>
     <label for="compressed_both">Both</label>
     <input type="radio" name="compression" id="compressed_both" value="both" ${compression.length == 1 && compression[0] == "both" ? "checked" : ""}>
-    <legend class="hint" style="display: ${compression.length > 1 ? "block" : "none"};">(Multiple values selected)</legend>
+    <legend class="hint" style="display: ${compression.length > 1 ? "block" : "none"};"><span class="material-symbols-outlined">info</span> Multiple values selected</legend>
     </fieldset>
     </div>
     `;
 
     html += `<p></p>`;
-    html += `<p>Not yet functional:</p>`;
+    html += `<p>Optional OpenType Features:</p>`;
     html += `<p></p>`;
 
     // Optional OT features
-    otFeatures = collectData(ID, "optionalOTfeatures");
+    otFeatures = collectData("optionalOTfeatures");
 
     // Combine OT features into a single array
-    let otFeaturesArray = new Set();
+    let totalOTfeatures = new Set();
     for (const i in otFeatures) {
         for (const j in otFeatures[i]) {
-            otFeaturesArray = otFeaturesArray.add(otFeatures[i][j]);
+            totalOTfeatures = totalOTfeatures.add(otFeatures[i][j]);
         }
     }
-    otFeaturesArray = Array.from(otFeaturesArray).sort();
+    totalOTfeatures = Array.from(totalOTfeatures).sort();
 
-    for (const i in otFeaturesArray) {
-        feature = otFeaturesArray[i];
-        html += `
-        <div class="widget">
-        <fieldset>
-        <legend>${feature}</legend>
-        <label for="feature_${feature}_keep">Keep</label>
-        <input type="radio" name="feature_${feature}" id="feature_${feature}_keep" value="keep" checked>
-        <label for="feature_${feature}_freeze">Freeze</label>
-        <input type="radio" name="feature_${feature}" id="feature_${feature}_freeze" value="freeze">
-        <label for="feature_${feature}_drop">Drop</label>
-        <input type="radio" name="feature_${feature}" id="feature_${feature}_drop" value="drop">
-        </fieldset>
-        </div>
-        `;
+    if (totalOTfeatures.length == 0) {
+        html += `<p>No optional OpenType features available</p>`;
     }
+    else {
+        html += `<table>`;
+        // html += `<tr><th>Feature</th><th>Code</th><th>User Choice</th></tr>`;
 
-    html += `
-    <script>
-    $( function() {
-        $("input[type='radio']").checkboxradio({
-        icon: false
-        });
-    } );
-    </script>
-        `;
+        for (const i in totalOTfeatures) {
+            feature = totalOTfeatures[i];
+            html += `<tr>`;
+            html += `<td><code>${feature}</code></td>`;
+
+            // Stylistic Set Names
+            let ssName = "";
+            let multipleSSNames = false;
+            let names = new Set();
+            if (feature.startsWith("ss")) {
+                // Get stylistic set names, if defined
+                ssNames = collectData("stylisticSetNames");
+                for (const j in ssNames) {
+                    if (ssNames[j][feature]) {
+                        names.add(ssNames[j][feature]);
+                    }
+                }
+                names = Array.from(names);
+                if (names.length > 1) {
+                    ssName = names[0];
+                    multipleSSNames = true;
+                }
+                else {
+                    ssName = names[0];
+                }
+            }
+
+            // Decide name
+            let feature_name = feature;
+            if (optional_opentype_features_names[feature]) {
+                feature_name = optional_opentype_features_names[feature];
+            }
+            if (ssName) {
+                feature_name = ssName;
+            }
+
+            html += `<td>${feature_name} `;
+            // Check if the feature is available in all fonts
+            let availableInAll = true;
+            for (const j in selectedTargetIDs()) {
+                ID = selectedTargetIDs()[j];
+                data = upsetter.targetData(ID);
+                if (!data.optionalOTfeatures.includes(feature)) {
+                    availableInAll = false;
+                    break;
+                }
+            }
+            if (!availableInAll) {
+                html += `<br /> <span class="hint"><span class="material-symbols-outlined">info</span> Not available in all selected fonts</span>`;
+            }
+            if (multipleSSNames) {
+                html += `<br /> <span class="hint"><span class="material-symbols-outlined">warning</span> Stylistic Set has different names across selected fonts:<br /><em>${names.join("</em>, <em>")}</em></span>`;
+            }
+
+            // Calculate value
+            let values = new Set();
+            for (const j in selectedTargetIDs()) {
+                ID = selectedTargetIDs()[j];
+                data = upsetter.targetData(ID);
+                let value = "keep";
+                if (data.settings.freeze_features.indexOf(feature) > -1) {
+                    value = "freeze";
+                }
+                if (data.settings.drop_features.indexOf(feature) > -1) {
+                    value = "drop";
+                }
+                values.add(value);
+            }
+            values = Array.from(values);
 
 
+            html += `<td>`;
+            html += `
+            <div class="widget">
+                <fieldset>
+                    <label for="feature_${feature}_keep">Keep</label>
+                    <input type="radio" feature="${feature}" part="opentypefeature" name="feature_${feature}" id="feature_${feature}_keep" value="keep" ${values.length == 1 && values[0] == "keep" ? "checked" : ""}>
+                        <label for="feature_${feature}_freeze">Freeze</label>
+                    <input type="radio" feature="${feature}" part="opentypefeature" name="feature_${feature}" id="feature_${feature}_freeze" value="freeze" ${values.length == 1 && values[0] == "freeze" ? "checked" : ""}>
+                        <label for="feature_${feature}_drop">Drop</label>
+                    <input type="radio" feature="${feature}" part="opentypefeature" name="feature_${feature}" id="feature_${feature}_drop" value="drop" ${values.length == 1 && values[0] == "drop" ? "checked" : ""}>
+            `;
+            html += `</fieldset>`
+            if (values.length > 1) {
+                html += `<div class="hint"><span class="material-symbols-outlined">info</span> Multiple values selected</div>`;
+            }
+            html += `</div>
+            `;
+            html += `</td>`;
+            html += `</tr>`;
+        }
+        html += `</table > `;
+
+        html += `
+            <script>
+            $(function () {
+                $("input[type='radio']").checkboxradio({
+                    icon: false
+                });
+            });
+            </script >
+            `;
+
+
+    }
     return html;
 }
 
 
 function targetFontIsCompiling(ID, condition) {
     if (condition) {
-        $(`li[targetfontid=${ID}]`).addClass("compiling");
+        $(`li[targetfontid = ${ID}]`).addClass("compiling");
     } else {
-        $(`li[targetfontid=${ID}]`).removeClass("compiling");
+        $(`li[targetfontid = ${ID}]`).removeClass("compiling");
     }
 }
 

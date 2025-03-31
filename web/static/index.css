@@ -20,7 +20,7 @@ fieldset {
 }
 
 body {
-    font-family: "IBM Plex Sans", monospace;
+    font-family: "IBM Plex Sans", sans-serif;
     font-size: 11pt;
     letter-spacing: 0.02em;
 }
@@ -278,10 +278,6 @@ a.ui-button:active,
     margin-top: 2px;
 }
 
-#target-settings-ui {
-    padding: 20px;
-}
-
 .arrow {
     font-size: 14pt;
     line-height: 10pt;
@@ -302,4 +298,39 @@ a.ui-button:active,
     border-radius: 5px;
     padding: 5px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* TARGET UI */
+
+#target-settings-ui {
+    padding: 20px;
+}
+
+#target-settings-ui .hint {
+    color: rgb(157, 157, 157);
+}
+
+#target-settings-ui table tr td {
+    padding-right: 30px;
+    padding-bottom: 5px;
+}
+
+code {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    background-color: #FBFBFB;
+    padding: 6px;
+    border-radius: 10px;
+}
+
+fieldset {
+    display: block;
+    min-inline-size: min-content;
+    margin-inline: 2px;
+    border-width: 0;
+    border-style: groove;
+    border-color: threedface;
+    border-image: initial;
+    padding-block: 0 0;
+    padding-inline: 0.75em;
 }

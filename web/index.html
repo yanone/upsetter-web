@@ -9,7 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -185,6 +185,42 @@
 
                 // Hide hint
                 $($(this).siblings(".hint")[0]).hide();
+            });
+
+            $("#target-settings-ui").on("change", "input[part='opentypefeature']", function () {
+                // Update targets
+                let feature = $(this).attr("feature");
+                let value = $(this).val();
+                console.log("Feature: " + feature, "Value: " + value);
+                for (const i in selectedTargetIDs()) {
+                    let ID = selectedTargetIDs()[i];
+                    let data = upsetter.targetData(ID);
+                    // Remove
+                    if (data.settings.freeze_features.indexOf(feature) > -1) {
+                        data.settings.freeze_features.splice(data.settings.freeze_features.indexOf(feature), 1);
+                    }
+                    if (data.settings.drop_features.indexOf(feature) > -1) {
+                        data.settings.drop_features.splice(data.settings.drop_features.indexOf(feature), 1);
+                    }
+                    if (value == "keep") {
+                        // Do nothing
+                    }
+                    if (value == "freeze") {
+                        // Add
+                        data.settings.freeze_features.push(feature);
+                        data.settings.freeze_features.sort();
+                    }
+                    if (value == "drop") {
+                        // Add
+                        data.settings.drop_features.push(feature);
+                        data.settings.drop_features.sort();
+                    }
+                    upsetter.updateTargetSettings(ID, "freeze_features", data.settings.freeze_features);
+                    upsetter.updateTargetSettings(ID, "drop_features", data.settings.drop_features);
+                }
+
+                // Hide hint
+                $($(this).parent("fieldset").siblings(".hint")[0]).hide();
             });
 
 
