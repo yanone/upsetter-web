@@ -136,17 +136,25 @@
     <script>
         $(document).ready(function () {
             $("#add-weights-button").button().click(function () {
-                var IDs = upsetter.addTargetFonts();
-                unselectAllTargets();
-                selectTargetIDs(IDs);
-                updateUI();
+
+                requestAnimationFrame(function () {
+                    var IDs = upsetter.addTargetFonts();
+                    unselectAllTargets();
+                    selectTargetIDs(IDs);
+                    updateUI();
+                    $("body").css("cursor", "default");
+                });
             });
 
             $("#add-single-weight-button").button().click(function () {
-                var IDs = upsetter.addSingleWeight(selectedSourceIDs());
-                unselectAllTargets();
-                selectTargetIDs(IDs);
-                updateUI();
+
+                requestAnimationFrame(function () {
+                    var IDs = upsetter.addSingleWeight(selectedSourceIDs());
+                    unselectAllTargets();
+                    selectTargetIDs(IDs);
+                    updateUI();
+                    $("body").css("cursor", "default");
+                });
             });
 
             $("#delete-sources-button").button().click(function () {
