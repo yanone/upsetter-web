@@ -9,6 +9,8 @@ body {
     line-height: 1.5;
     color: #333;
     background-color: #f8f9fa;
+    max-height: 100vh;
+    overflow: hidden;
 }
 
 /* UI */
@@ -183,9 +185,11 @@ a.ui-button:active,
 
 #app #center {
     width: 60%;
-    /* Center section takes 60% of the width */
     background-color: #ffffff;
-    /* Optional: Add a background color for clarity */
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100vh;
+
 }
 
 #app #right {
@@ -218,6 +222,9 @@ a.ui-button:active,
 }
 
 .font-list .items {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: hidden;
     margin-bottom: 10px;
 }
 

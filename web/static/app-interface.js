@@ -1,6 +1,9 @@
 // Load App
 let upsetter = null;
 let fontTargets = [];
+var sources_selectable = null;
+var targets_selectable = null;
+var selecting_targets_programmatically = false;
 
 $(document).ready(function () {
     async function main() {
@@ -143,20 +146,34 @@ function sourcesLoaded(data) {
         html += "</ol>";
         $('#font-sources .items').html(html);
         sourcesAreAvailable(true);
-        $('#font-sources .items ol').selectable({
-            selected: function (event, ui) {
-                $("#delete-sources-button").button("option", "disabled", false);
-                $("#add-single-weight-button").button("option", "disabled", false);
-                // loadTargetSettingsUI();
+
+        sources_selectable = new Selectable({
+            filter: "#font-sources .items ol li",
+            selectedClass: "ui-selected",
+            unselectedClass: "ui-unselected",
+            selectedContainer: "#font-sources .items ol",
+            unselectedContainer: "#font-sources .items ol",
+            container: "#font-sources .items",
+            autoScroll: {
+                increment: 15,
+                threshold: 0
             },
-            unselected: function (event, ui) {
-                if (selectedSourceIDs().length == 0) {
-                    $("#delete-sources-button").button("option", "disabled", true);
-                    $("#add-single-weight-button").button("option", "disabled", true);
-                }
-                else {
-                    $("#add-single-weight-button").button("option", "disabled", false);
-                }
+            lasso: {
+                borderColor: "rgba(255, 255, 255, 1)",
+                backgroundColor: "rgba(255, 255, 255, 0.1)"
+            }
+        });
+        sources_selectable.on("select", function (item) {
+            $("#delete-sources-button").button("option", "disabled", false);
+            $("#add-single-weight-button").button("option", "disabled", false);
+        });
+        sources_selectable.on("deselect", function (item) {
+            if (selectedSourceIDs().length == 0) {
+                $("#delete-sources-button").button("option", "disabled", true);
+                $("#add-single-weight-button").button("option", "disabled", true);
+            }
+            else {
+                $("#add-single-weight-button").button("option", "disabled", false);
             }
         });
     }
@@ -179,15 +196,34 @@ function targetsLoaded(data) {
         html += "</ol>";
         $('#font-targets .items').html(html);
         fontsCanBeGenerated(true);
-        $('#font-targets .items ol').selectable({
-            selected: function (event, ui) {
-                $("#delete-targets-button").button("option", "disabled", false);
-                loadTargetSettingsUI();
+
+        targets_selectable = new Selectable({
+            filter: "#font-targets .items ol li",
+            selectedClass: "ui-selected",
+            unselectedClass: "ui-unselected",
+            selectedContainer: "#font-targets .items ol",
+            unselectedContainer: "#font-targets .items ol",
+            container: "#font-targets .items",
+            autoScroll: {
+                increment: 15,
+                threshold: 0
             },
-            unselected: function (event, ui) {
-                if (selectedTargetIDs().length == 0) {
-                    $("#delete-targets-button").button("option", "disabled", true);
-                }
+            lasso: {
+                borderColor: "rgba(255, 255, 255, 1)",
+                backgroundColor: "rgba(255, 255, 255, 0.1)"
+            }
+        });
+        targets_selectable.on("select", function (item) {
+            $("#delete-targets-button").button("option", "disabled", false);
+            if (!selecting_targets_programmatically) {
+                loadTargetSettingsUI();
+            }
+        });
+        targets_selectable.on("deselect", function (item) {
+            if (selectedTargetIDs().length == 0) {
+                $("#delete-targets-button").button("option", "disabled", true);
+            }
+            if (!selecting_targets_programmatically) {
                 loadTargetSettingsUI();
             }
         });
@@ -200,6 +236,8 @@ function targetsLoaded(data) {
     }
     updateUI();
 }
+
+/* SELECTION */
 
 function selectedTargetIDs() {
     let targets = [];
@@ -222,25 +260,35 @@ function selectedSourceIDs() {
 }
 
 function unselectTargetIDs(IDs) {
+    selecting_targets_programmatically = true;
     for (const i in IDs) {
         ID = IDs[i];
-        $(`li[targetfontid=${ID}]`).removeClass("ui-selected");
+        targets_selectable.deselect($(`li[targetfontid=${ID}]`)[0]);
     }
+    selecting_targets_programmatically = false;
     loadTargetSettingsUI();
 }
 
 function unselectAllTargets() {
-    $('#font-targets .items ol li').removeClass("ui-selected");
-    loadTargetSettingsUI();
+    if (selectedTargetIDs().length > 0) {
+        selecting_targets_programmatically = true;
+        targets_selectable.clear();
+        selecting_targets_programmatically = false;
+        loadTargetSettingsUI();
+    }
 }
 
 function selectTargetIDs(IDs) {
+    selecting_targets_programmatically = true;
     for (const i in IDs) {
         ID = IDs[i];
-        $(`li[targetfontid=${ID}]`).addClass("ui-selected");
+        targets_selectable.select($(`li[targetfontid=${ID}]`)[0]);
     }
+    selecting_targets_programmatically = false;
     loadTargetSettingsUI();
 }
+
+/* OTHER */
 
 function targetIDs() {
     let targets = [];
