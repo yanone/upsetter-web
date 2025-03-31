@@ -5,6 +5,7 @@ let pyodide = null;
 // constants
 const SOURCESFOLDER = "sources";
 const TARGETSFOLDER = "targets";
+const DOWNLOADSFOLDER = "download";
 
 class Upsetter {
     constructor(options) {
@@ -51,6 +52,7 @@ import micropip
 import os
 import json
 import copy
+import shutil
 from pyodide.code import run_js
 
 optional_opentype_features = [
@@ -107,6 +109,7 @@ import upsetter
 
 os.makedirs("${SOURCESFOLDER}", exist_ok=True)
 os.makedirs("${TARGETSFOLDER}", exist_ok=True)
+os.makedirs("${DOWNLOADSFOLDER}", exist_ok=True)
 
 class UpsetterFont(TTFont):
     def familyName(self):
@@ -115,6 +118,12 @@ class UpsetterFont(TTFont):
         if familyName:
             return familyName.toUnicode()
         return name.getName(1, 3, 1, 1033).toUnicode()
+    def styleName(self):
+        name = self["name"]
+        styleName = name.getName(17, 3, 1, 1033)
+        if styleName:
+            return styleName.toUnicode()
+        return name.getName(2, 3, 1, 1033).toUnicode()
     def isItalic(self):
         return "Italic" in self.fileName()
     def fileName(self):
@@ -195,14 +204,17 @@ class FontTarget(object):
             "size_compressed": round((os.path.getsize(f"${TARGETSFOLDER}/{self.compressedFileName()}") if os.path.exists(f"${TARGETSFOLDER}/{self.compressedFileName()}") and self.settings["compression"] in ("compressed", "both") else 0) / 1000),
             "settings": self.settings,
             "needsCompilation": self.needsCompilation(),
-            "optionalOTfeatures": self.sourceFont.ttFont.optionalOTfeatures()
+            "optionalOTfeatures": self.sourceFont.ttFont.optionalOTfeatures(),
+            "name": self.name()
 
         }
         return _data
+    def name(self):
+        return f"{self.sourceFont.ttFont.familyName()}-{self.sourceFont.ttFont.styleName()}"
     def fileName(self):
-        return f"{self.ID}{os.path.splitext(self.sourceFont.fileName)[1]}"
+        return f"{self.name()}{os.path.splitext(self.sourceFont.fileName)[1]}"
     def compressedFileName(self):
-        return f"{self.ID}.woff2"
+        return f"{self.name()}.woff2"
     def needsCompilation(self):
         return self.settings != self.last_compilation_settings
     def compile(self):
@@ -222,11 +234,18 @@ class FontTarget(object):
             os.remove(f"${TARGETSFOLDER}/{self.compressedFileName()}")
         if self.settings["compression"] == "compressed" and os.path.exists(f"${TARGETSFOLDER}/{self.fileName()}"):
             os.remove(f"${TARGETSFOLDER}/{self.fileName()}")
-        
+    def emitFiles(self):
+        files = []
+        if self.settings["compression"] in ("uncompressed", "both"):
+            files.append(self.fileName())
+        if self.settings["compression"] in ("compressed", "both"):
+            files.append(self.compressedFileName())
+        return files
 
 def getFontTarget(sourceFont=None, ID=None):
     if not ID:
         ID = nextFontTargetIndex()
+        assert sourceFont is not None, "sourceFont must be provided if ID is not provided"
     if ID not in fontTargets:
         defaultSettings = {
             "compression": "uncompressed",
@@ -499,14 +518,26 @@ def getFontTarget(sourceFont=None, ID=None):
     download() {
         pyodide.runPython(`
             import zipfile
-            import os
+            familyName = fontTargets[list(fontTargets.keys())[0]].sourceFont.ttFont.familyName()
 
-            with zipfile.ZipFile("upsetter.zip", "w") as zipf:
-                for file in os.listdir("${TARGETSFOLDER}"):
-                    zipf.write(os.path.join("${TARGETSFOLDER}", file), file)
+            # Delete old files
+            for file in os.listdir("${DOWNLOADSFOLDER}"):
+                os.remove(f"${DOWNLOADSFOLDER}/{file}")
+
+            # Copy all files from targets folder to download folder
+            for ID, targetFont in fontTargets.items():
+                for file in targetFont.emitFiles():
+                    shutil.copy(f"${TARGETSFOLDER}/{file}", f"${DOWNLOADSFOLDER}/{file}")
+                    print(f"${TARGETSFOLDER}/{file}", f"${DOWNLOADSFOLDER}/{file}")
+
+            # Create a zip file of all files in download folder
+            with zipfile.ZipFile("download.zip", "w") as zipf:
+                for file in os.listdir("${DOWNLOADSFOLDER}"):
+                    zipf.write(os.path.join("${DOWNLOADSFOLDER}", file), file)
+            
             `);
 
-        const zipFile = pyodide.FS.readFile("upsetter.zip");
+        const zipFile = pyodide.FS.readFile("download.zip");
         const blob = new Blob([zipFile], { type: "application/zip" });
         const url = URL.createObjectURL(blob);
 
